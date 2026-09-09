@@ -47,6 +47,9 @@ export interface Inputs {
   excludeFlood: boolean;
   vacantOnly: boolean;
   spreadMi: number;          // minimum spacing between ranked results, 0 disables
+  county: string | null;     // restrict to one county
+  place: string;             // free-text match on city or street
+  minScore: number;          // hide results below this score
   allowBelowMarket: boolean; // include greenbelt/non-market assessed parcels
   weights: Weights;
 }
@@ -62,7 +65,8 @@ export const DEFAULT_WEIGHTS: Weights = {
 export const DEFAULT_INPUTS: Inputs = {
   acresNeeded: 1.0, minDimFt: 225, budget: 3_000_000, minAadt: 15_000,
   maxSpeed: 45, compRing: 3, excludeFlood: true, vacantOnly: false,
-  spreadMi: 1, allowBelowMarket: false, weights: { ...DEFAULT_WEIGHTS },
+  spreadMi: 1, county: null, place: "", minScore: 0,
+  allowBelowMarket: false, weights: { ...DEFAULT_WEIGHTS },
 };
 
 export interface Factor { key: string; label: string; score: number; weight: number; note: string; }
@@ -88,6 +92,12 @@ export function gateFail(s: Site, i: Inputs): string | null {
   if ((s.aadt ?? 0) < i.minAadt) return `traffic ${fmt(s.aadt ?? 0)} below ${fmt(i.minAadt)}`;
   if (s.land_value > i.budget) return `land value $${fmt(s.land_value)} over budget`;
   if (i.vacantOnly && !s.is_vacant) return "has an existing building";
+  if (i.county && s.county !== i.county) return "outside the selected county";
+  if (i.place) {
+    const q = i.place.toLowerCase();
+    if (!(s.city ?? "").toLowerCase().includes(q) &&
+        !(s.address ?? "").toLowerCase().includes(q)) return "does not match the place filter";
+  }
   if (!i.allowBelowMarket && s.value_flag === "below_market") return "land value assessed below market (greenbelt or exempt)";
   return null;
 }
@@ -181,9 +191,12 @@ export function rank(sites: Site[], inputs: Inputs, limit = 200) {
     scored.push(scoreSite(s, inputs));
   }
   scored.sort((a, b) => b.total - a.total);
-  const passed = scored.length;
+  const ranked = inputs.minScore > 0
+    ? scored.filter(x => x.total >= inputs.minScore)
+    : scored;
+  const passed = ranked.length;
 
-  if (!inputs.spreadMi) return { passed, top: scored.slice(0, limit), distinct: passed };
+  if (!inputs.spreadMi) return { passed, top: ranked.slice(0, limit), distinct: passed };
 
   // Greedy spatial thinning. Adjacent parcels on one corridor are a single
   // opportunity, not several, and a list of nine lots on the same street is
@@ -200,7 +213,7 @@ export function rank(sites: Site[], inputs: Inputs, limit = 200) {
   const grid = new Map<string, Scored[]>();
   const kept: Scored[] = [];
 
-  for (const cand of scored) {
+  for (const cand of ranked) {
     const { lat, lon } = cand.site;
     const gy = Math.floor(lat / cell), gx = Math.floor(lon / cell);
     const cosLat = Math.cos((lat * Math.PI) / 180);

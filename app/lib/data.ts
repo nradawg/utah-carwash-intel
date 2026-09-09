@@ -4,7 +4,14 @@ import type { Site } from "./scoring";
 
 export interface Wash {
   name: string | null; lat: number; lon: number; address: string | null;
-  city: string | null; brand: string | null; format: string; format_label: string;
+  city: string | null; postcode: string | null;
+  brand: string | null; brand_wikidata: string | null;
+  website: string | null; phone: string | null; opening_hours: string | null;
+  socials: string | null; amenities: string | null;
+  osm_id: string | null; overture_id: string | null;
+  confirmed_by: string | null; last_checked: string | null;
+  county: string | null;
+  format: string; format_label: string;
   format_confidence: number; format_source: string; format_evidence: string;
   sources: string; n_sources: number; facility_class: string;
   is_mobile: boolean; is_competitor: boolean;

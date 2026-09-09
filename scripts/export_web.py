@@ -53,19 +53,35 @@ def main(stamp):
     comp = open_cw.column("is_competitor").to_pylist()
     open_express = sum(1 for f, c in zip(fmts, comp) if c and f == "express_tunnel")
 
-    # Attribute each wash to a county by nearest candidate parcel. Utah's
-    # candidate parcels blanket every populated area, so this is reliable
-    # where it matters and only ambiguous on county lines.
+    # Attribute each wash to a county by point-in-polygon against the actual
+    # county boundaries. Nearest-parcel attribution put a Centerville wash in
+    # Salt Lake County, and the saturation table counts tunnels per county, so
+    # a boundary error corrupts the headline metric.
     import math
-    LAT0, M = 39.5, 111_320.0
-    def xy(lon, lat):
-        return np.column_stack([np.asarray(lon) * M * math.cos(math.radians(LAT0)),
-                                np.asarray(lat) * M])
-    ptree = cKDTree(xy(sites.column("lon").to_pylist(), sites.column("lat").to_pylist()))
-    scty = sites.column("county").to_pylist()
-    _, wi = ptree.query(xy(open_cw.column("lon").to_pylist(),
-                           open_cw.column("lat").to_pylist()), k=1)
-    wash_county = [scty[i] for i in wi]
+    from shapely.geometry import Polygon, Point
+    from shapely.strtree import STRtree
+    CB = pq.read_table(DATA / "counties_geom.parquet")
+    polys, names = [], []
+    for nm, ring in zip(CB.column("county").to_pylist(), CB.column("ring").to_pylist()):
+        if len(ring) >= 4:
+            polys.append(Polygon(ring)); names.append(nm)
+    ctree = STRtree(polys)
+    wlon = open_cw.column("lon").to_pylist()
+    wlat = open_cw.column("lat").to_pylist()
+    pts = [Point(float(a), float(b)) for a, b in zip(wlon, wlat)]
+    wash_county = [None] * len(pts)
+    hit = ctree.query(pts, predicate="within")
+    for qi, gi in zip(hit[0], hit[1]):
+        if wash_county[qi] is None:
+            wash_county[qi] = names[gi]
+    # A handful sit just outside a simplified boundary; fall back to nearest.
+    miss = [i for i, v in enumerate(wash_county) if v is None]
+    if miss:
+        cent = np.array([[p.centroid.x, p.centroid.y] for p in polys])
+        _, ci = cKDTree(cent).query(np.array([[wlon[i], wlat[i]] for i in miss]), k=1)
+        for j, i in enumerate(miss):
+            wash_county[i] = names[ci[j]]
+        print(f"  [county] {len(miss)} wash(es) fell outside a boundary, snapped to nearest")
     open_cw = open_cw.append_column("county", pa.array(wash_county))
     pq.write_table(to_int32(open_cw), WEB / "carwashes.parquet", compression="zstd")
     pq.write_table(to_int32(sites), WEB / "sites.parquet", compression="zstd")

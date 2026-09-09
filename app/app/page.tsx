@@ -7,6 +7,9 @@ import ControlRail from "@/components/ControlRail";
 import ResultsList from "@/components/ResultsList";
 import SiteDetail from "@/components/SiteDetail";
 import CountyTable from "@/components/CountyTable";
+import CountyPanel from "@/components/CountyPanel";
+import WashDetail from "@/components/WashDetail";
+import Boundary from "@/components/Boundary";
 import Methodology from "@/components/Methodology";
 import { FORMAT_COLOR } from "@/components/MapView";
 
@@ -31,6 +34,8 @@ export default function Page() {
   const [showFormats, setShowFormats] = useState<Set<string>>(new Set(ALL_FORMATS));
   const [tab, setTab] = useState<Tab>("map");
   const [showIso, setShowIso] = useState(true);
+  const [selectedWash, setSelectedWash] = useState<Wash | null>(null);
+  const [rightTab, setRightTab] = useState<"sites" | "counties">("sites");
 
   useEffect(() => {
     loadAll().then(setData).catch(e => setErr(String(e)));
@@ -93,12 +98,15 @@ export default function Page() {
               style={{ borderRight: "1px solid var(--line)" }}>
               <ControlRail inputs={inputs} setInputs={setInputs}
                 showFormats={showFormats} setShowFormats={setShowFormats}
-                counts={{ passed: result.passed, total: data.sites.length }} />
+                counts={{ passed: result.passed, total: data.sites.length }}
+                countyNames={data.counties.map(c => c.county).sort()} />
             </aside>
 
             <main className="flex-1 relative min-w-0">
               <MapView top={result.top} washes={data.washes} selected={selected}
-                onSelect={setSelected} showFormats={showFormats}
+                onSelect={s => { setSelected(s); if (s) setSelectedWash(null); }}
+                onSelectWash={w => { setSelectedWash(w); if (w) setSelected(null); }}
+                showFormats={showFormats}
                 isoFeatures={iso.features} showIso={showIso} />
               {busy && (
                 <div className="absolute top-3 left-1/2 -translate-x-1/2 px-2.5 py-1 rounded text-[11px] mono"
@@ -109,14 +117,39 @@ export default function Page() {
               <Legend showIso={showIso} setShowIso={setShowIso} hasSelection={!!selected} />
             </main>
 
-            <aside className="w-[336px] shrink-0 hidden md:block"
+            <aside className="w-[336px] shrink-0 hidden md:flex flex-col"
               style={{ borderLeft: "1px solid var(--line)" }}>
-              {selected
-                ? <SiteDetail s={selected} onClose={() => setSelected(null)}
-                    isoOffsetMi={iso.features.length ? iso.offsetMi : null} />
-                : <ResultsList top={result.top} passed={result.passed}
-                    distinct={result.distinct}
-                    selected={selected} onSelect={setSelected} />}
+              <div className="flex shrink-0" style={{ borderBottom: "1px solid var(--line)" }}>
+                {(["sites", "counties"] as const).map(t => (
+                  <button key={t}
+                    onClick={() => { setRightTab(t); if (t === "counties") { setSelected(null); setSelectedWash(null); } }}
+                    className="flex-1 py-2 text-[11px] uppercase tracking-[0.14em] transition-colors"
+                    style={{
+                      background: rightTab === t ? "var(--panel)" : "var(--panel-2)",
+                      color: rightTab === t ? "var(--ink)" : "var(--ink-3)",
+                      borderBottom: rightTab === t ? "1px solid var(--accent)" : "1px solid transparent",
+                    }}>
+                    {t === "sites" ? "Ranked sites" : "County saturation"}
+                  </button>
+                ))}
+              </div>
+              <div className="flex-1 min-h-0">
+                {rightTab === "counties"
+                  ? <CountyPanel counties={data.counties} active={inputs.county}
+                      onPick={c => setInputs({ ...inputs, county: c })} />
+                  : selectedWash
+                    ? <Boundary label="car wash">
+                        <WashDetail w={selectedWash} onClose={() => setSelectedWash(null)} />
+                      </Boundary>
+                    : selected
+                      ? <Boundary label="site">
+                          <SiteDetail s={selected} onClose={() => setSelected(null)}
+                            isoOffsetMi={iso.features.length ? iso.offsetMi : null} />
+                        </Boundary>
+                      : <ResultsList top={result.top} passed={result.passed}
+                          distinct={result.distinct}
+                          selected={selected} onSelect={setSelected} />}
+              </div>
             </aside>
           </>
         )}

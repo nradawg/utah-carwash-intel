@@ -75,10 +75,12 @@ function scoreColor(t: number) {
 }
 
 export default function MapView({
-  top, washes, selected, onSelect, showFormats, isoFeatures, showIso,
+  top, washes, selected, onSelect, onSelectWash, showFormats, isoFeatures, showIso,
 }: {
   top: Scored[]; washes: Wash[]; selected: Scored | null;
-  onSelect: (s: Scored | null) => void; showFormats: Set<string>;
+  onSelect: (s: Scored | null) => void;
+  onSelectWash: (w: Wash | null) => void;
+  showFormats: Set<string>;
   isoFeatures: GeoJSON.Feature[]; showIso: boolean;
 }) {
   const el = useRef<HTMLDivElement>(null);
@@ -86,6 +88,10 @@ export default function MapView({
   const ready = useRef(false);
   const onSelectRef = useRef(onSelect);
   onSelectRef.current = onSelect;
+  const onWashRef = useRef(onSelectWash);
+  onWashRef.current = onSelectWash;
+  const washRef = useRef(washes);
+  washRef.current = washes;
   const topRef = useRef(top);
   topRef.current = top;
 
@@ -162,6 +168,13 @@ export default function MapView({
         },
       });
 
+      m.on("click", "washes", (e) => {
+        const f = e.features?.[0];
+        if (!f) return;
+        const i = f.properties?.idx as number;
+        onWashRef.current(washRef.current[i] ?? null);
+      });
+
       m.on("click", "sites", (e) => {
         const f = e.features?.[0];
         if (!f) return;
@@ -204,11 +217,13 @@ export default function MapView({
       if (!src) { m.once("load", push); return; }
       src.setData({
         type: "FeatureCollection",
-        features: washes.filter(w => showFormats.has(w.format)).map(w => ({
+        features: washes.map((w, idx) => ({ w, idx }))
+          .filter(({ w }) => showFormats.has(w.format))
+          .map(({ w, idx }) => ({
           type: "Feature" as const,
           geometry: { type: "Point" as const, coordinates: [w.lon, w.lat] },
           properties: {
-            name: w.name ?? "", label: w.format_label,
+            idx, name: w.name ?? "", label: w.format_label,
             evidence: w.format_source === "none" ? "format not determined" : w.format_evidence,
             color: FORMAT_COLOR[w.format] ?? "#4b525e",
           },

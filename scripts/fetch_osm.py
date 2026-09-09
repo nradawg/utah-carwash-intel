@@ -42,7 +42,16 @@ def fetch():
             "opening_hours": t.get("opening_hours"),
             "parcel_id": t.get("utahagrc:parcelid"),
             "tags": {k: v for k, v in t.items()
-                     if k in ("automated", "self_service", "vacuum_cleaner", "truck_wash")},
+                     if k in ("automated", "self_service", "vacuum_cleaner",
+                              "truck_wash", "payment:credit_cards", "drive_through",
+                              "dog_washing", "self_service:vacuum", "fee", "level")},
+            "postcode": t.get("addr:postcode"),
+            "brand_wikidata": t.get("brand:wikidata"),
+            "checked": t.get("check_date") or t.get("survey:date"),
+            "osm_id": f"{e['type']}/{e['id']}",
+            "overture_id": None,
+            "confidence": None,
+            "socials": None,
             "rating": None, "reviews": None, "google_category": None,
         })
     return rows

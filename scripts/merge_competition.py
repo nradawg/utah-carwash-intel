@@ -137,10 +137,40 @@ def merge_group(g):
     # demand) but exclude them from competitor counts by default.
     is_mobile = bool(re.search(r"\bmobile\b|\bon[\s-]?site\b|\bcomes to you\b", nm))
     facility = "detailer" if fmt == HAND_FMT else "wash"
+    # Contributing datasets, for the "confirmed by" line in the UI. OSM and
+    # Overture are independent surveys, so a place present in both is far more
+    # trustworthy than one seen once.
+    datasets = set()
+    for r in g:
+        if r["src"] == "osm":
+            datasets.add("OpenStreetMap")
+        elif r["src"] == "overture":
+            for d in (r.get("datasets") or []):
+                datasets.add(f"Overture/{d}")
+            if not r.get("datasets"):
+                datasets.add("Overture")
+
+    socials = []
+    for r in g:
+        for u in (r.get("socials") or []):
+            if u and u not in socials:
+                socials.append(u)
+
     return {
         "name": pick("name"), "lat": round(best["lat"], 6), "lon": round(best["lon"], 6),
-        "address": pick("address"), "city": pick("city"),
-        "brand": pick("brand"), "website": pick("website"), "phone": pick("phone"),
+        "address": pick("address"), "city": pick("city"), "postcode": pick("postcode"),
+        "brand": pick("brand"), "brand_wikidata": pick("brand_wikidata"),
+        "website": pick("website"), "phone": pick("phone"),
+        "opening_hours": pick("opening_hours"),
+        "socials": ",".join(socials[:3]) or None,
+        "osm_id": pick("osm_id"), "overture_id": pick("overture_id"),
+        "confirmed_by": ", ".join(sorted(datasets)) or None,
+        "last_checked": pick("checked"),
+        "amenities": ",".join(sorted(
+            k for k, v in tags.items()
+            if k in ("vacuum_cleaner", "dog_washing", "drive_through",
+                     "payment:credit_cards", "self_service:vacuum")
+            and str(v).lower() in ("yes", "only", "customer"))) or None,
         "rating": pick("rating"), "reviews": pick("reviews"),
         "format": fmt, "format_label": LABEL[fmt],
         "format_confidence": conf, "format_source": fsrc, "format_evidence": ev,

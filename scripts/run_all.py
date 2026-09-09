@@ -20,6 +20,7 @@ STEPS = [
     ("tracts",       "ingest_tracts.py"),
     ("demographics", "ingest_demographics.py"),
     ("context",      "ingest_context.py"),
+    ("countygeom",   "ingest_county_geom.py"),
     ("osm",          "fetch_osm.py"),
     ("overture",     "fetch_overture.py"),
     ("merge",        "merge_competition.py"),

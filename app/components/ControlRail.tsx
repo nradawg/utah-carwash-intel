@@ -41,11 +41,12 @@ function Section({ title, sub, children }: { title: string; sub?: string; childr
 }
 
 export default function ControlRail({
-  inputs, setInputs, showFormats, setShowFormats, counts,
+  inputs, setInputs, showFormats, setShowFormats, counts, countyNames,
 }: {
   inputs: Inputs; setInputs: (i: Inputs) => void;
   showFormats: Set<string>; setShowFormats: (s: Set<string>) => void;
   counts: { passed: number; total: number };
+  countyNames: string[];
 }) {
   const set = <K extends keyof Inputs>(k: K, v: Inputs[K]) => setInputs({ ...inputs, [k]: v });
   const setW = (k: keyof Weights, v: number) =>
@@ -54,6 +55,24 @@ export default function ControlRail({
 
   return (
     <div className="h-full overflow-y-auto" style={{ background: "var(--panel)" }}>
+      <Section title="Where" sub="Narrow to a market before tuning anything else.">
+        <Row label="County" hint={inputs.county ?? "all 29"}>
+          <select value={inputs.county ?? ""}
+            onChange={e => set("county", e.target.value || null)}>
+            <option value="">All counties</option>
+            {countyNames.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+        </Row>
+        <Row label="City or street">
+          <input type="text" placeholder="e.g. Ogden, or Redwood Rd"
+            value={inputs.place} onChange={e => set("place", e.target.value)} />
+        </Row>
+        <Row label="Minimum score" hint={inputs.minScore === 0 ? "any" : String(inputs.minScore)}>
+          <input type="range" min={0} max={80} step={5} value={inputs.minScore}
+            onChange={e => set("minScore", +e.target.value)} className="w-full" />
+        </Row>
+      </Section>
+
       <Section title="Your facility" sub="Everything re-ranks as you change these.">
         <Row label="Land needed" hint={`${inputs.acresNeeded.toFixed(2)} acres`}>
           <input type="range" min={0.3} max={4} step={0.05} value={inputs.acresNeeded}

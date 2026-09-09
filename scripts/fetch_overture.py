@@ -23,9 +23,11 @@ def fetch():
     c.execute("INSTALL spatial; INSTALL httpfs; LOAD spatial; LOAD httpfs; SET s3_region='us-west-2';")
     q = f"""
     SELECT id, names.primary AS name, categories.primary AS cat, confidence,
-           brand.names.primary AS brand,
+           brand.names.primary AS brand, brand.wikidata AS brand_wikidata,
            addresses[1].freeform AS addr, addresses[1].locality AS city,
+           addresses[1].postcode AS postcode,
            websites[1] AS website, phones[1] AS phone, operating_status AS status,
+           socials, list_transform(sources, x -> x.dataset) AS datasets,
            ST_X(geometry) AS lon, ST_Y(geometry) AS lat
     FROM read_parquet('{SRC}', hive_partitioning=1)
     WHERE bbox.xmin BETWEEN {UTAH['w']} AND {UTAH['e']}
@@ -34,7 +36,8 @@ def fetch():
       AND confidence > 0.4
     """
     rows = []
-    for (oid, name, cat, conf, brand, addr, city, web, phone, status, lon, lat) in c.execute(q).fetchall():
+    for (oid, name, cat, conf, brand, bwd, addr, city, postcode, web, phone,
+         status, socials, datasets, lon, lat) in c.execute(q).fetchall():
         if lon is None or lat is None:
             continue
         if status and status != "open":
@@ -43,6 +46,10 @@ def fetch():
             "src": "overture", "src_id": oid, "name": name, "brand": brand,
             "operator": None, "lat": lat, "lon": lon, "address": addr, "city": city,
             "website": web, "phone": phone, "opening_hours": None, "parcel_id": None,
+            "postcode": postcode, "brand_wikidata": bwd, "checked": None,
+            "osm_id": None, "overture_id": oid,
+            "socials": list(socials) if socials else None,
+            "datasets": sorted(set(datasets)) if datasets else None,
             "tags": {}, "rating": None, "reviews": None,
             "google_category": "auto detailing service" if cat == "auto_detailing" else None,
             "confidence": conf,
