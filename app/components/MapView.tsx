@@ -6,31 +6,12 @@ import type { Scored } from "@/lib/scoring";
 import type { Wash } from "@/lib/data";
 
 /**
- * CARTO dark raster basemap: no API key, no billing, and raster tiles need no
- * vector-tile worker, which makes it far more robust in sandboxed webviews.
- * Attribution is required and is rendered by the map's attribution control.
+ * OpenFreeMap dark: free, no API key, no usage cap and no watermark. CARTO's
+ * basemaps stamp "API KEY REQUIRED" across unauthenticated tiles, which is why
+ * they are not used here despite the tile URLs returning 200.
+ * Attribution is carried by the style and rendered by the attribution control.
  */
-const STYLE: maplibregl.StyleSpecification = {
-  version: 8,
-  sources: {
-    carto: {
-      type: "raster",
-      tiles: [
-        "https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png",
-        "https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png",
-        "https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png",
-      ],
-      tileSize: 256,
-      maxzoom: 20,
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    },
-  },
-  layers: [
-    { id: "bg", type: "background", paint: { "background-color": "#0a0c10" } },
-    { id: "carto", type: "raster", source: "carto", paint: { "raster-opacity": 0.92 } },
-  ],
-};
+const STYLE = "https://tiles.openfreemap.org/styles/dark";
 
 const FORMAT_COLOR: Record<string, string> = {
   express_tunnel: "#f85149",
@@ -46,19 +27,35 @@ const FORMAT_COLOR: Record<string, string> = {
  * MapLibre loads its style inside requestAnimationFrame. Browsers never fire
  * RAF while a document is hidden, so a map constructed in a background tab
  * never finishes initialising and stays blank even after the tab is shown.
- * Fall back to a timer while hidden; hand back to real RAF once visible, so
+ * Fall back to a timer while hidden, and hand back to real RAF once visible so
  * rendering stays vsync-aligned whenever the page is actually on screen.
+ *
+ * cancelAnimationFrame must be patched too. Without it MapLibre cannot cancel
+ * a pending timer-backed frame, so a queued render fires after map.remove()
+ * and throws on the torn-down style. Timer ids are offset into their own range
+ * so they can never be confused with native RAF handles.
  */
+const TIMER_ID_OFFSET = 1e9;
+
 function ensureRafWhenHidden() {
   if (typeof window === "undefined") return;
   const w = window as Window & { __rafPatched?: boolean };
   if (w.__rafPatched) return;
   w.__rafPatched = true;
-  const native = window.requestAnimationFrame.bind(window);
-  window.requestAnimationFrame = ((cb: FrameRequestCallback) =>
-    document.hidden
-      ? (window.setTimeout(() => cb(performance.now()), 16) as unknown as number)
-      : native(cb)) as typeof window.requestAnimationFrame;
+
+  const rafNative = window.requestAnimationFrame.bind(window);
+  const cafNative = window.cancelAnimationFrame.bind(window);
+
+  window.requestAnimationFrame = ((cb: FrameRequestCallback) => {
+    if (!document.hidden) return rafNative(cb);
+    const timer = window.setTimeout(() => cb(performance.now()), 16);
+    return timer + TIMER_ID_OFFSET;
+  }) as typeof window.requestAnimationFrame;
+
+  window.cancelAnimationFrame = ((handle: number) => {
+    if (handle >= TIMER_ID_OFFSET) clearTimeout(handle - TIMER_ID_OFFSET);
+    else cafNative(handle);
+  }) as typeof window.cancelAnimationFrame;
 }
 
 function scoreColor(t: number) {
@@ -218,7 +215,13 @@ export default function MapView({
     m.flyTo({ center: [selected.site.lon, selected.site.lat], zoom: Math.max(m.getZoom(), 13.2), duration: 750 });
   }, [selected]);
 
-  return <div ref={el} className="absolute inset-0" />;
+  // Inline styles, not Tailwind classes: maplibre-gl.css declares
+  // `.maplibregl-map { position: relative }` and is bundled after Tailwind's
+  // utilities, so it beats `.absolute` at equal specificity. That left the
+  // container at position:relative with inset-0 doing nothing, collapsing it
+  // to zero height so the map could never render. Inline styles win over any
+  // stylesheet regardless of order.
+  return <div ref={el} style={{ position: "absolute", inset: 0 }} />;
 }
 
 const empty = (): GeoJSON.FeatureCollection =>
