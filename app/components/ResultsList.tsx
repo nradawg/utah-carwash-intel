@@ -3,9 +3,9 @@ import type { Scored } from "@/lib/scoring";
 import { scoreColor } from "./MapView";
 
 export default function ResultsList({
-  top, passed, selected, onSelect,
+  top, passed, distinct, selected, onSelect,
 }: {
-  top: Scored[]; passed: number;
+  top: Scored[]; passed: number; distinct: number;
   selected: Scored | null; onSelect: (s: Scored) => void;
 }) {
   return (
@@ -15,7 +15,9 @@ export default function ResultsList({
           Ranked sites
         </div>
         <div className="text-[11px] mt-1" style={{ color: "var(--ink-3)" }}>
-          {passed.toLocaleString()} clear every screen. Showing top {Math.min(top.length, 200)}.
+          {passed.toLocaleString()} parcels clear every screen
+          {distinct < passed && <>, grouping to {distinct.toLocaleString()} distinct locations</>}.
+          Showing top {Math.min(top.length, 200)}.
         </div>
       </div>
       <div className="flex-1 overflow-y-auto">
@@ -48,6 +50,9 @@ export default function ResultsList({
                     {s.site.city || s.site.county} · {s.site.acres} ac ·{" "}
                     {s.site.aadt ? `${(s.site.aadt / 1000).toFixed(0)}k AADT` : "no count"} ·{" "}
                     {s.site.express_3mi} tunnel{s.site.express_3mi === 1 ? "" : "s"} in 3 mi
+                    {s.nearby > 0 && (
+                      <span style={{ color: "var(--ink-2)" }}> · +{s.nearby} nearby</span>
+                    )}
                   </span>
                 </span>
               </div>

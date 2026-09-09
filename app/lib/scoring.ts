@@ -44,6 +44,7 @@ export interface Inputs {
   compRing: 1 | 3 | 5;       // miles
   excludeFlood: boolean;
   vacantOnly: boolean;
+  spreadMi: number;          // minimum spacing between ranked results, 0 disables
   allowBelowMarket: boolean; // include greenbelt/non-market assessed parcels
   weights: Weights;
 }
@@ -59,13 +60,15 @@ export const DEFAULT_WEIGHTS: Weights = {
 export const DEFAULT_INPUTS: Inputs = {
   acresNeeded: 1.0, minDimFt: 225, budget: 3_000_000, minAadt: 15_000,
   maxSpeed: 45, compRing: 3, excludeFlood: true, vacantOnly: false,
-  allowBelowMarket: false, weights: { ...DEFAULT_WEIGHTS },
+  spreadMi: 1, allowBelowMarket: false, weights: { ...DEFAULT_WEIGHTS },
 };
 
 export interface Factor { key: string; label: string; score: number; weight: number; note: string; }
 export interface Scored {
   site: Site; total: number; factors: Factor[];
   strengths: string[]; weaknesses: string[];
+  /** Lower-scoring parcels suppressed within spreadMi of this one. */
+  nearby: number;
 }
 
 /** Clamp a value onto 0..1 across a range. */
@@ -160,7 +163,7 @@ export function scoreSite(s: Site, i: Inputs): Scored {
 
   const ranked = [...factors].sort((a, b) => b.score - a.score);
   return {
-    site: s, total,
+    site: s, total, nearby: 0,
     factors,
     strengths: ranked.filter(f => f.score >= 0.6).slice(0, 2).map(f => `${f.label}: ${f.note}`),
     weaknesses: ranked.filter(f => f.score < 0.45).slice(-2).map(f => `${f.label}: ${f.note}`),
@@ -170,11 +173,55 @@ export function scoreSite(s: Site, i: Inputs): Scored {
 function clamp01(v: number) { return Math.max(0, Math.min(1, v)); }
 
 export function rank(sites: Site[], inputs: Inputs, limit = 200) {
-  const out: Scored[] = [];
+  const scored: Scored[] = [];
   for (const s of sites) {
     if (gateFail(s, inputs)) continue;
-    out.push(scoreSite(s, inputs));
+    scored.push(scoreSite(s, inputs));
   }
-  out.sort((a, b) => b.total - a.total);
-  return { passed: out.length, top: out.slice(0, limit) };
+  scored.sort((a, b) => b.total - a.total);
+  const passed = scored.length;
+
+  if (!inputs.spreadMi) return { passed, top: scored.slice(0, limit), distinct: passed };
+
+  // Greedy spatial thinning. Adjacent parcels on one corridor are a single
+  // opportunity, not several, and a list of nine lots on the same street is
+  // useless for choosing where to build. Keep the best parcel in each
+  // neighbourhood and record how many it stands in for.
+  //
+  // The default spacing is one mile because that is the distance at which
+  // washes start taking each other's members: MMCG document a step change in
+  // volume when a third tunnel opens within a mile. Two sites closer than that
+  // are alternatives to each other, not independent options.
+  const MI_PER_DEG_LAT = 69.055;
+  const r = inputs.spreadMi;
+  const cell = r / MI_PER_DEG_LAT;                 // grid cell ~= the radius
+  const grid = new Map<string, Scored[]>();
+  const kept: Scored[] = [];
+
+  for (const cand of scored) {
+    const { lat, lon } = cand.site;
+    const gy = Math.floor(lat / cell), gx = Math.floor(lon / cell);
+    const cosLat = Math.cos((lat * Math.PI) / 180);
+    let blocker: Scored | null = null;
+
+    for (let dy = -1; dy <= 1 && !blocker; dy++) {
+      for (let dx = -1; dx <= 1 && !blocker; dx++) {
+        const bucket = grid.get(`${gy + dy},${gx + dx}`);
+        if (!bucket) continue;
+        for (const k of bucket) {
+          const my = (lat - k.site.lat) * MI_PER_DEG_LAT;
+          const mx = (lon - k.site.lon) * MI_PER_DEG_LAT * cosLat;
+          if (Math.hypot(mx, my) < r) { blocker = k; break; }
+        }
+      }
+    }
+
+    if (blocker) { blocker.nearby++; continue; }
+    kept.push(cand);
+    const key = `${gy},${gx}`;
+    const bucket = grid.get(key);
+    if (bucket) bucket.push(cand); else grid.set(key, [cand]);
+  }
+
+  return { passed, top: kept.slice(0, limit), distinct: kept.length };
 }

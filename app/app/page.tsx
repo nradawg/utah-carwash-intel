@@ -35,7 +35,7 @@ export default function Page() {
   // Deferred so dragging a slider stays smooth while 45k rows re-rank.
   const deferred = useDeferredValue(inputs);
   const result = useMemo(() => {
-    if (!data) return { passed: 0, top: [] as Scored[] };
+    if (!data) return { passed: 0, top: [] as Scored[], distinct: 0 };
     return rank(data.sites, deferred);
   }, [data, deferred]);
 
@@ -103,6 +103,7 @@ export default function Page() {
               {selected
                 ? <SiteDetail s={selected} onClose={() => setSelected(null)} />
                 : <ResultsList top={result.top} passed={result.passed}
+                    distinct={result.distinct}
                     selected={selected} onSelect={setSelected} />}
             </aside>
           </>

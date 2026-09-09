@@ -97,6 +97,25 @@ export default function ControlRail({
             ))}
           </div>
         </Row>
+        <Row label="Spread results apart" hint={inputs.spreadMi ? `${inputs.spreadMi} mi` : "off"}>
+          <div className="flex gap-1.5">
+            {([0, 0.5, 1, 2] as const).map(v => (
+              <button key={v} onClick={() => set("spreadMi", v)}
+                className="flex-1 py-1.5 rounded text-[12px] transition-colors"
+                style={{
+                  background: inputs.spreadMi === v ? "var(--accent-dim)" : "var(--panel-2)",
+                  border: `1px solid ${inputs.spreadMi === v ? "var(--accent)" : "var(--line)"}`,
+                  color: inputs.spreadMi === v ? "var(--ink)" : "var(--ink-2)",
+                }}>{v === 0 ? "off" : `${v} mi`}</button>
+            ))}
+          </div>
+          <div className="text-[10px] mt-1.5 leading-relaxed" style={{ color: "var(--ink-3)" }}>
+            Keeps only the best parcel in each neighbourhood, so the list shows distinct
+            opportunities instead of nine lots on one street. Washes within a mile take
+            each other&apos;s members, so closer parcels are alternatives, not separate options.
+          </div>
+        </Row>
+
         {([
           ["excludeFlood", "Exclude FEMA flood zones"],
           ["vacantOnly", "Vacant land only"],
