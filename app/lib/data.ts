@@ -14,6 +14,8 @@ export interface County {
   county: string; candidate_parcels: number; median_price_per_acre: number | null;
   median_aadt: number | null; avg_hh_income: number | null;
   permits_2026: number; population: number;
+  washes: number; express: number;
+  pop_per_tunnel: number | null; pop_per_wash: number | null;
 }
 
 export interface Manifest {

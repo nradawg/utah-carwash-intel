@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-09T10:34Z",
+  "generated": "2026-09-09T11:00Z",
   "sources": [
     {
       "name": "UGRC LIR parcels",
@@ -61,9 +61,9 @@
   ],
   "counts": {
     "candidate_parcels": 45140,
-    "wash_facilities_published": 476,
-    "wash_facilities_all_sources": 590,
+    "wash_facilities_published": 495,
+    "wash_facilities_all_sources": 669,
     "express_tunnels_published": 163,
-    "open_coverage_pct": 80.7
+    "open_coverage_pct": 74.0
   }
 }

@@ -108,7 +108,7 @@ export default function Page() {
           </>
         )}
         {tab === "counties" && (
-          <div className="flex-1 min-w-0"><CountyTable counties={data.counties} washes={data.washes} /></div>
+          <div className="flex-1 min-w-0"><CountyTable counties={data.counties} /></div>
         )}
         {tab === "methodology" && (
           <div className="flex-1 min-w-0"><Methodology m={data.manifest} /></div>
