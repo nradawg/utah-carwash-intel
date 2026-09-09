@@ -1,0 +1,27 @@
+{
+  "name": "utah-carwash-intel",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3111",
+    "build": "next build",
+    "start": "next start",
+    "refresh": "cd .. && .venv/bin/python scripts/run_all.py"
+  },
+  "dependencies": {
+    "next": "16.3.0",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "maplibre-gl": "^5.9.0",
+    "hyparquet": "^1.17.1",
+    "hyparquet-compressors": "^1.1.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "tailwindcss": "^4",
+    "typescript": "^5",
+    "@types/node": "^24",
+    "@types/react": "^19",
+    "@types/react-dom": "^19"
+  }
+}

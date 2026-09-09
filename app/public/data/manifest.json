@@ -1,0 +1,69 @@
+{
+  "generated": "2026-09-09T10:34Z",
+  "sources": [
+    {
+      "name": "UGRC LIR parcels",
+      "url": "https://gis.utah.gov/products/sgid/cadastre/parcels/",
+      "licence": "Public record (State of Utah, SGID)",
+      "vintage": "county tax rolls, annual"
+    },
+    {
+      "name": "UDOT AADT 2024",
+      "url": "https://data-uplan.opendata.arcgis.com/",
+      "licence": "Public record",
+      "vintage": "2024 (series from 1981)"
+    },
+    {
+      "name": "ACS 5-year 2023",
+      "url": "https://www2.census.gov/programs-surveys/acs/summary_file/2023/",
+      "licence": "Public domain",
+      "vintage": "2019-2023"
+    },
+    {
+      "name": "OpenStreetMap",
+      "url": "https://www.openstreetmap.org/copyright",
+      "licence": "ODbL - attribution and share-alike required",
+      "vintage": "live"
+    },
+    {
+      "name": "Overture Maps places",
+      "url": "https://docs.overturemaps.org/",
+      "licence": "CDLA-Permissive-2.0 / Apache-2.0",
+      "vintage": "2026-08-19.0"
+    },
+    {
+      "name": "UGRC address points",
+      "url": "https://gis.utah.gov/products/sgid/location/address-points/",
+      "licence": "Public record",
+      "vintage": "current"
+    },
+    {
+      "name": "FEMA NFHL",
+      "url": "https://hazards.fema.gov/",
+      "licence": "Public domain",
+      "vintage": "current"
+    },
+    {
+      "name": "Census Building Permits",
+      "url": "https://www2.census.gov/econ/bps/County/",
+      "licence": "Public domain",
+      "vintage": "2026 year-to-date"
+    }
+  ],
+  "coverage_caveats": [
+    "Emery and San Juan counties publish parcels but leave PROP_CLASS unpopulated, so no candidate sites are listed there. That is a county reporting gap, not an absence of commercial land.",
+    "Utah's Farmland Assessment Act ('greenbelt') assesses qualifying land at agricultural rather than market value, producing clusters near $2,500/acre. Affected parcels are flagged value_flag='below_market' rather than hidden or imputed.",
+    "Carbon County reports land values on a non-market basis throughout; its median $/acre is not comparable to other counties.",
+    "UDOT counts cover state highways and federal-aid roads. Parcels with no UDOT segment within 500 ft fall back to UGRC local-road counts (aadt_source='local'); some have no count at all.",
+    "Flood screening uses FEMA SFHA polygons generalised to roughly 100 m and tested against the parcel centroid. It is a screening flag, not a survey-grade flood determination.",
+    "Format is inferred where not directly observed. Every wash carries format_source and format_confidence; unresolved records are shown as Unknown rather than guessed.",
+    "Published POIs are open-licensed only (OSM, Overture). Google-derived records are excluded from this build."
+  ],
+  "counts": {
+    "candidate_parcels": 45140,
+    "wash_facilities_published": 476,
+    "wash_facilities_all_sources": 590,
+    "express_tunnels_published": 163,
+    "open_coverage_pct": 80.7
+  }
+}

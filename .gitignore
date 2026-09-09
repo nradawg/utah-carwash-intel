@@ -1,0 +1,13 @@
+# Google Maps derived data is not redistributable. It enriches the local
+# build only and must never enter the repo.
+data/local/
+
+.venv/
+__pycache__/
+*.pyc
+
+app/node_modules/
+app/.next/
+app/out/
+.DS_Store
+app/tsconfig.tsbuildinfo
