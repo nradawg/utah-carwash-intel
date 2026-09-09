@@ -7,7 +7,7 @@ ranks where it does.
 
 You set the facility you want to build. Everything re-ranks in the browser.
 
-**Live:** _(deployed URL)_
+**Live:** https://utah-carwash-intel.vercel.app
 
 ---
 
