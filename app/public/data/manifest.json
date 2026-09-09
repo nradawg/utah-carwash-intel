@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-09T11:00Z",
+  "generated": "2026-09-09T11:03Z",
   "sources": [
     {
       "name": "UGRC LIR parcels",
@@ -57,13 +57,13 @@
     "UDOT counts cover state highways and federal-aid roads. Parcels with no UDOT segment within 500 ft fall back to UGRC local-road counts (aadt_source='local'); some have no count at all.",
     "Flood screening uses FEMA SFHA polygons generalised to roughly 100 m and tested against the parcel centroid. It is a screening flag, not a survey-grade flood determination.",
     "Format is inferred where not directly observed. Every wash carries format_source and format_confidence; unresolved records are shown as Unknown rather than guessed.",
-    "Published POIs are open-licensed only (OSM, Overture). Google-derived records are excluded from this build."
+    "Competitor data is open-licensed only (OpenStreetMap and Overture), and the scoring uses the same set that the map displays, so every count is auditable against a visible dot. A wider sweep found more washes statewide; those records are not redistributable and are excluded here, so competitor counts should be read as a floor rather than a census."
   ],
   "counts": {
     "candidate_parcels": 45140,
-    "wash_facilities_published": 495,
-    "wash_facilities_all_sources": 669,
-    "express_tunnels_published": 163,
-    "open_coverage_pct": 74.0
+    "wash_facilities_published": 445,
+    "wash_facilities_all_sources": 670,
+    "express_tunnels_published": 160,
+    "open_coverage_pct": 66.4
   }
 }

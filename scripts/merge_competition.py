@@ -165,6 +165,25 @@ if __name__ == "__main__":
     print(f"  deduped -> {len(merged):,} distinct car washes")
 
     pq.write_table(pa.Table.from_pylist(merged), DATA / "carwashes.parquet", compression="zstd")
+
+    # Publishable variant: re-merge each cluster using ONLY open-licensed
+    # members, so no published attribute can trace back to Google. Excluding
+    # google-only records is not enough on its own, because the attribute
+    # priority in merge_group would otherwise pick a Google name or address
+    # for a cluster that also has an OSM or Overture member.
+    open_rows = []
+    for g in groups:
+        og = [r for r in g if r["src"] != "gmaps"]
+        if not og:
+            continue
+        m = merge_group(og)
+        if m["name"] or m["n_sources"] > 1:
+            open_rows.append(m)
+    pq.write_table(pa.Table.from_pylist(open_rows), DATA / "carwashes_open.parquet",
+                   compression="zstd")
+    print(f"\n  open-licensed variant: {len(open_rows):,} records "
+          f"({sum(1 for m in open_rows if m['is_competitor']):,} wash facilities), "
+          "attributes sourced only from OSM and Overture")
     from collections import Counter
     fc = Counter(m["format"] for m in merged)
     sc = Counter(m["format_source"] for m in merged)

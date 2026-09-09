@@ -91,7 +91,11 @@ if __name__ == "__main__":
     print(f"  rooftops: ringed over {len(RF):,} grid cells")
 
     # ---- competitors by format ----
-    C = load("carwashes.parquet")
+    # Use the open-licensed variant so competitor COUNTS match the competitors
+    # the map actually displays. Scoring against a larger private set would
+    # show "3 tunnels within 3 mi" beside only 2 visible dots, which reads as
+    # a bug and is impossible for anyone to audit.
+    C = load("carwashes_open.parquet")
     is_comp = np.array(col(C, "is_competitor"))
     cfmt = np.array(col(C, "format"))
     cxy_all = xy(col(C, "lon"), col(C, "lat"))

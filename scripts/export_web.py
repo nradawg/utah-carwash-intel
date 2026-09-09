@@ -37,14 +37,15 @@ def to_int32(tbl):
 def main(stamp):
     sites = pq.read_table(DATA / "sites.parquet")
     cw = pq.read_table(DATA / "carwashes.parquet")
+    # carwashes_open.parquet is re-merged from open-licensed members only.
+    cw_open = pq.read_table(DATA / "carwashes_open.parquet")
 
     # ---- POIs: open-licensed only for the public build ----
-    src = cw.column("sources").to_pylist()
-    keep = [i for i, s in enumerate(src) if s != "gmaps"]
-    open_cw = cw.take(keep)
-    # drop Google-derived attributes even on records that also have open sources
     drop = {"rating", "reviews", "has_google"}
-    open_cw = open_cw.select([c for c in open_cw.column_names if c not in drop])
+    open_cw = cw_open.select([c for c in cw_open.column_names if c not in drop])
+    leaked = [s for s in open_cw.column("sources").to_pylist() if "gmaps" in s]
+    if leaked:
+        raise RuntimeError(f"{len(leaked)} published records still reference gmaps")
 
     total_wash = sum(1 for i, c in enumerate(cw.column("is_competitor").to_pylist()) if c)
     open_wash = sum(1 for c in open_cw.column("is_competitor").to_pylist() if c)
@@ -158,7 +159,7 @@ def main(stamp):
             "UDOT counts cover state highways and federal-aid roads. Parcels with no UDOT segment within 500 ft fall back to UGRC local-road counts (aadt_source='local'); some have no count at all.",
             "Flood screening uses FEMA SFHA polygons generalised to roughly 100 m and tested against the parcel centroid. It is a screening flag, not a survey-grade flood determination.",
             "Format is inferred where not directly observed. Every wash carries format_source and format_confidence; unresolved records are shown as Unknown rather than guessed.",
-            "Published POIs are open-licensed only (OSM, Overture). Google-derived records are excluded from this build.",
+            "Competitor data is open-licensed only (OpenStreetMap and Overture), and the scoring uses the same set that the map displays, so every count is auditable against a visible dot. A wider sweep found more washes statewide; those records are not redistributable and are excluded here, so competitor counts should be read as a floor rather than a census.",
         ],
         "counts": {
             "candidate_parcels": sites.num_rows,
