@@ -15,7 +15,9 @@ function Stat({ k, v, sub }: { k: string; v: string; sub?: string }) {
   );
 }
 
-export default function SiteDetail({ s, onClose }: { s: Scored; onClose: () => void }) {
+export default function SiteDetail({ s, onClose, isoOffsetMi }: {
+  s: Scored; onClose: () => void; isoOffsetMi: number | null;
+}) {
   const site = s.site;
   const wTotal = s.factors.reduce((a, f) => a + f.weight, 0) || 1;
 
@@ -107,6 +109,15 @@ export default function SiteDetail({ s, onClose }: { s: Scored; onClose: () => v
           sub={`${site.vehicles_per_hh ?? "?"} vehicles per household · ${site.multifamily_pct ?? "?"}% multifamily · ${site.car_commute_pct ?? "?"}% drive to work`} />
         <Stat k="County growth" v={`${num(site.county_permits_2026)} units permitted 2026`}
           sub="Census Building Permits Survey, year to date" />
+        <Stat k="Drive time"
+          v={isoOffsetMi === null ? "not available here"
+             : isoOffsetMi === 0 ? "5 and 10 min shown on map"
+             : `5 and 10 min shown on map`}
+          sub={isoOffsetMi === null
+            ? "No drive-time polygon was computed near this parcel"
+            : isoOffsetMi === 0
+              ? "Free-flow times from posted speed limits on the UGRC road network, not congested times"
+              : `Computed from a point ${isoOffsetMi} mi away, using free-flow posted speeds`} />
         <Stat k="Flood" v={site.in_flood_zone ? "Inside a FEMA SFHA" : "Outside mapped SFHA"}
           sub="Screening flag from generalised FEMA polygons, not a survey" />
       </div>

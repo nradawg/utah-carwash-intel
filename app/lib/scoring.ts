@@ -15,6 +15,8 @@
  */
 
 export interface Site {
+  /** Stable unique row key. parcel_id is NOT unique: assessors reuse ids. */
+  uid: string;
   parcel_id: string; address: string; city: string; county: string;
   lat: number; lon: number; acres: number;
   land_value: number; price_per_acre: number | null;

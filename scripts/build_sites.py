@@ -202,6 +202,10 @@ if __name__ == "__main__":
     for i in range(n):
         cty = P_["county"][i]
         out.append({
+            # County assessors reuse parcel ids (Davis repeats one id 133
+            # times), so parcel_id cannot identify a row. uid is the stable
+            # key used for selection and isochrone lookup.
+            "uid": str(i),
             "parcel_id": P_["parcel_id"][i],
             "address": P_["address"][i], "city": P_["city"][i], "county": cty,
             "lat": float(plat[i]), "lon": float(plon[i]),

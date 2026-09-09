@@ -13,14 +13,22 @@ import type { Wash } from "@/lib/data";
  */
 const STYLE = "https://tiles.openfreemap.org/styles/dark";
 
+/**
+ * Competitors use a cool palette and a light ring; ranked sites use a warm
+ * red-to-green score ramp and a solid fill. Previously express tunnels and
+ * low-scoring sites were both #f85149, and in-bay washes and mid-scoring sites
+ * were both #d29922, so the same colour meant two different things.
+ * Express tunnels get the highest-salience colour because they are the only
+ * format that really competes with another tunnel.
+ */
 const FORMAT_COLOR: Record<string, string> = {
-  express_tunnel: "#f85149",
-  flex_full_serve: "#ff8c42",
-  in_bay_automatic: "#d29922",
-  self_serve: "#8b949e",
-  hand_detail: "#6e7681",
-  truck_wash: "#a371f7",
-  unknown: "#4b525e",
+  express_tunnel: "#ff5fd2",
+  flex_full_serve: "#c77dff",
+  in_bay_automatic: "#7aa2f7",
+  self_serve: "#56cfe1",
+  hand_detail: "#7f8794",
+  truck_wash: "#9d8df1",
+  unknown: "#8b93a7",
 };
 
 /**
@@ -67,10 +75,11 @@ function scoreColor(t: number) {
 }
 
 export default function MapView({
-  top, washes, selected, onSelect, showFormats,
+  top, washes, selected, onSelect, showFormats, isoFeatures, showIso,
 }: {
   top: Scored[]; washes: Wash[]; selected: Scored | null;
   onSelect: (s: Scored | null) => void; showFormats: Set<string>;
+  isoFeatures: GeoJSON.Feature[]; showIso: boolean;
 }) {
   const el = useRef<HTMLDivElement>(null);
   const map = useRef<MLMap | null>(null);
@@ -96,15 +105,37 @@ export default function MapView({
     m.addControl(new maplibregl.ScaleControl({ unit: "imperial" }), "bottom-left");
 
     m.on("load", () => {
+      // Drive-time isochrones sit beneath everything else.
+      m.addSource("iso", { type: "geojson", data: empty() });
+      m.addLayer({
+        id: "iso-10-fill", type: "fill", source: "iso",
+        filter: ["==", ["get", "minutes"], 10],
+        paint: { "fill-color": "#4da3ff", "fill-opacity": 0.10 },
+      });
+      m.addLayer({
+        id: "iso-5-fill", type: "fill", source: "iso",
+        filter: ["==", ["get", "minutes"], 5],
+        paint: { "fill-color": "#4da3ff", "fill-opacity": 0.16 },
+      });
+      m.addLayer({
+        id: "iso-line", type: "line", source: "iso",
+        paint: {
+          "line-color": "#4da3ff",
+          "line-width": ["case", ["==", ["get", "minutes"], 5], 1.6, 1],
+          "line-opacity": 0.75,
+          "line-dasharray": ["case", ["==", ["get", "minutes"], 5], ["literal", [1, 0]], ["literal", [3, 2]]],
+        },
+      });
+
       m.addSource("washes", { type: "geojson", data: empty() });
       m.addLayer({
         id: "washes", type: "circle", source: "washes",
         paint: {
-          "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 2.4, 11, 6, 15, 10],
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 2.6, 11, 5.5, 15, 9],
           "circle-color": ["get", "color"],
-          "circle-opacity": 0.85,
-          "circle-stroke-width": 0.6,
-          "circle-stroke-color": "#0a0c10",
+          "circle-opacity": 0.5,
+          "circle-stroke-width": 1.4,
+          "circle-stroke-color": ["get", "color"],
         },
       });
 
@@ -200,7 +231,7 @@ export default function MapView({
           geometry: { type: "Point" as const, coordinates: [s.site.lon, s.site.lat] },
           properties: {
             idx, score: s.total, color: scoreColor(s.total),
-            sel: selected?.site.parcel_id === s.site.parcel_id,
+            sel: selected?.site.uid === s.site.uid,
           },
         })),
       });
@@ -208,12 +239,46 @@ export default function MapView({
     push();
   }, [top, selected]);
 
-  // fly to selection
+  // isochrone for the selected site only
+  useEffect(() => {
+    const m = map.current; if (!m) return;
+    const push = () => {
+      const src = m.getSource("iso") as maplibregl.GeoJSONSource | undefined;
+      if (!src) { m.once("load", push); return; }
+      src.setData({
+        type: "FeatureCollection",
+        features: showIso ? isoFeatures : [],
+      });
+    };
+    push();
+  }, [isoFeatures, showIso]);
+
+  // Frame the selection. When a drive-time polygon exists, fit to it: the
+  // trade area is the point of selecting a site, and a tight zoom on the
+  // parcel hides it entirely.
   useEffect(() => {
     const m = map.current;
     if (!m || !selected) return;
+    const ten = showIso
+      ? isoFeatures.find(f => f.properties?.minutes === 10)
+      : undefined;
+    if (ten) {
+      let minX = 180, minY = 90, maxX = -180, maxY = -90;
+      const walk = (c: unknown): void => {
+        if (Array.isArray(c) && typeof c[0] === "number") {
+          const [x, y] = c as [number, number];
+          if (x < minX) minX = x; if (x > maxX) maxX = x;
+          if (y < minY) minY = y; if (y > maxY) maxY = y;
+        } else if (Array.isArray(c)) c.forEach(walk);
+      };
+      walk((ten.geometry as GeoJSON.Polygon).coordinates);
+      if (minX <= maxX) {
+        m.fitBounds([[minX, minY], [maxX, maxY]], { padding: 60, duration: 800, maxZoom: 13 });
+        return;
+      }
+    }
     m.flyTo({ center: [selected.site.lon, selected.site.lat], zoom: Math.max(m.getZoom(), 13.2), duration: 750 });
-  }, [selected]);
+  }, [selected, isoFeatures, showIso]);
 
   // Inline styles, not Tailwind classes: maplibre-gl.css declares
   // `.maplibregl-map { position: relative }` and is bundled after Tailwind's

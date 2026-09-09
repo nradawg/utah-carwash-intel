@@ -24,6 +24,7 @@ STEPS = [
     ("overture",     "fetch_overture.py"),
     ("merge",        "merge_competition.py"),
     ("sites",        "build_sites.py"),
+    ("isochrones",   "build_isochrones.py"),
 ]
 
 if __name__ == "__main__":

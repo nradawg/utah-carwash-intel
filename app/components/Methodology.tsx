@@ -69,6 +69,27 @@ export default function Methodology({ m }: { m: Manifest }) {
         </p>
 
         <h3 className="text-[11px] uppercase tracking-[0.14em] mt-6 mb-2.5" style={{ color: "var(--ink-3)" }}>
+          Drive-time isochrones
+        </h3>
+        <p className="text-[11.5px] leading-relaxed mb-3" style={{ color: "var(--ink-2)" }}>
+          DRB argues that a 10-minute drive time is a better trade area than a 3 to 5 mile
+          ring, because a ring ignores what the road network actually does. A freeway pulls
+          customers from much further along its axis, while a mountain range or a lake leaves
+          half a ring empty. That is visible in Salt Lake valley, where the polygons stretch
+          north and south along Interstate 15 and are pinched sharply east and west.
+        </p>
+        <p className="text-[11.5px] leading-relaxed mb-3" style={{ color: "var(--ink-2)" }}>
+          These are computed here rather than fetched from a routing service. A routable graph
+          of 1.35 million nodes and 2.8 million edges is built from UGRC road centrelines,
+          weighted by each segment&apos;s posted speed limit, and Dijkstra from each origin gives
+          everything reachable inside the time budget. Two caveats worth stating: these are
+          free-flow times derived from posted limits with a factor applied for intersections
+          and turns, so they are optimistic against rush hour; and they are precomputed for a
+          set of origins spaced 0.4 miles apart, so a selected parcel may borrow the polygon
+          from a nearby origin. When it does, the site panel says how far away that origin was.
+        </p>
+
+        <h3 className="text-[11px] uppercase tracking-[0.14em] mt-6 mb-2.5" style={{ color: "var(--ink-3)" }}>
           How format is determined
         </h3>
         <p className="text-[11.5px] leading-relaxed" style={{ color: "var(--ink-2)" }}>

@@ -28,9 +28,9 @@ export default function ResultsList({
           </div>
         )}
         {top.map((s, i) => {
-          const sel = selected?.site.parcel_id === s.site.parcel_id;
+          const sel = selected?.site.uid === s.site.uid;
           return (
-            <button key={s.site.parcel_id + i} onClick={() => onSelect(s)}
+            <button key={s.site.uid} onClick={() => onSelect(s)}
               className="w-full text-left px-4 py-2.5 transition-colors"
               style={{
                 borderBottom: "1px solid var(--line-soft)",
