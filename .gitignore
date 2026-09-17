@@ -1,6 +1,9 @@
 # Google Maps derived data is not redistributable. It enriches the local
 # build only and must never enter the repo.
 data/local/
+# The full competitor merge includes Google-derived records and ratings. Only
+# carwashes_open.parquet (OSM + Overture) is publishable.
+data/carwashes.parquet
 
 .venv/
 __pycache__/
@@ -11,3 +14,11 @@ app/.next/
 app/out/
 .DS_Store
 app/tsconfig.tsbuildinfo
+
+# Your own car wash points may have been copied from Google Maps, so they and
+# the file built from them stay local. The README explaining the folder is kept.
+data/user/*
+!data/user/README.md
+data/raw_user.json
+# Census and IRS downloads, refetched on first use
+data/cache/
