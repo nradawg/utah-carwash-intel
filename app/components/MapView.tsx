@@ -4,6 +4,7 @@ import maplibregl, { Map as MLMap } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { Scored } from "@/lib/scoring";
 import type { Wash } from "@/lib/data";
+import { FORMAT_NAME } from "@/lib/formatNames";
 
 /**
  * OpenFreeMap dark: free, no API key, no usage cap and no watermark. CARTO's
@@ -66,6 +67,14 @@ function ensureRafWhenHidden() {
   }) as typeof window.cancelAnimationFrame;
 }
 
+/**
+ * The desktop framing (centre and zoom) is wider than a phone is, so on a
+ * phone it cut off St. George and the whole south of the state. Phones fit
+ * the state outline instead. Top padding clears the one line map key.
+ */
+const UTAH_BOUNDS: [[number, number], [number, number]] = [[-114.06, 36.99], [-109.04, 42.01]];
+const PHONE_FIT = { padding: { top: 56, bottom: 28, left: 16, right: 16 } };
+
 function scoreColor(t: number) {
   if (t >= 70) return "#3fb950";
   if (t >= 58) return "#7ecf4f";
@@ -75,9 +84,11 @@ function scoreColor(t: number) {
 }
 
 export default function MapView({
-  top, washes, selected, onSelect, onSelectWash, showFormats, isoFeatures, showIso,
+  top, washes, selected, selectedWash, onSelect, onSelectWash, showFormats, isoFeatures, showIso,
 }: {
   top: Scored[]; washes: Wash[]; selected: Scored | null;
+  /** The open car wash, marked with a halo and brought into view. */
+  selectedWash: Wash | null;
   onSelect: (s: Scored | null) => void;
   onSelectWash: (w: Wash | null) => void;
   showFormats: Set<string>;
@@ -98,14 +109,29 @@ export default function MapView({
   useEffect(() => {
     if (!el.current || map.current) return;
     ensureRafWhenHidden();
+    const phone = window.matchMedia("(max-width: 767px)").matches;
     const m = new maplibregl.Map({
       container: el.current,
       style: STYLE,
-      center: [-111.87, 40.3],
-      zoom: 7.1,
-      attributionControl: { compact: true },
+      ...(phone
+        ? { bounds: UTAH_BOUNDS, fitBoundsOptions: PHONE_FIT }
+        : { center: [-111.87, 40.3] as [number, number], zoom: 7.1 }),
+      // UGRC's CC BY 4.0 licence asks maps to credit "UGRC SGID (data modified)".
+      attributionControl: {
+        compact: true,
+        customAttribution: "Data: UGRC SGID (data modified), UDOT, US Census Bureau, Overture Maps, © OpenStreetMap contributors",
+      },
     });
     map.current = m;
+    // The compact credit line opens expanded, and on a phone it covers the
+    // bottom of the map. Start it closed there, down to its i button. The
+    // style is set before the control is added, so the control is already in
+    // place and will not reopen itself.
+    if (phone) {
+      const attrib = el.current.querySelector(".maplibregl-ctrl-attrib");
+      attrib?.classList.remove("maplibregl-compact-show");
+      attrib?.removeAttribute("open");
+    }
     m.on("error", (e) => console.error("[maplibre]", e?.error?.message ?? e));
     m.addControl(new maplibregl.NavigationControl({ showCompass: false }), "bottom-right");
     m.addControl(new maplibregl.ScaleControl({ unit: "imperial" }), "bottom-left");
@@ -167,20 +193,43 @@ export default function MapView({
           "circle-stroke-color": "#4da3ff",
         },
       });
-
-      m.on("click", "washes", (e) => {
-        const f = e.features?.[0];
-        if (!f) return;
-        const i = f.properties?.idx as number;
-        onWashRef.current(washRef.current[i] ?? null);
+      // The open car wash, matched by its index in the washes list. Nothing
+      // matches -1, so the halo is hidden until a wash is picked.
+      m.addLayer({
+        id: "wash-halo", type: "circle", source: "washes",
+        filter: ["==", ["get", "idx"], -1],
+        paint: {
+          "circle-radius": 20, "circle-color": "#4da3ff",
+          "circle-opacity": 0.18, "circle-stroke-width": 1.5,
+          "circle-stroke-color": "#4da3ff",
+        },
       });
 
-      m.on("click", "sites", (e) => {
-        const f = e.features?.[0];
-        if (!f) return;
-        const idx = f.properties?.idx as number;
-        onSelectRef.current(topRef.current[idx] ?? null);
+      // One click handler with a tap radius, instead of per-layer handlers
+      // that only fire on an exact hit. At state zoom a dot is 3 to 6 px
+      // across, which a finger on a phone almost never lands on. Pick the
+      // nearest dot within the radius; candidate sites win a tie because they
+      // are drawn on top.
+      m.on("click", (e) => {
+        const coarse = window.matchMedia("(pointer: coarse)").matches;
+        const r = coarse ? 16 : 7;
+        const hits = m.queryRenderedFeatures(
+          [[e.point.x - r, e.point.y - r], [e.point.x + r, e.point.y + r]],
+          { layers: ["sites", "washes"] });
+        let best: { f: maplibregl.MapGeoJSONFeature; d: number } | null = null;
+        for (const f of hits) {
+          const [lon, lat] = (f.geometry as GeoJSON.Point).coordinates;
+          const pt = m.project([lon, lat]);
+          const d = Math.hypot(pt.x - e.point.x, pt.y - e.point.y)
+            - (f.layer.id === "sites" ? 1 : 0);
+          if (d <= r && (!best || d < best.d)) best = { f, d };
+        }
+        if (!best) return;
+        const idx = best.f.properties?.idx as number;
+        if (best.f.layer.id === "sites") onSelectRef.current(topRef.current[idx] ?? null);
+        else onWashRef.current(washRef.current[idx] ?? null);
       });
+
       for (const l of ["sites", "washes"]) {
         m.on("mouseenter", l, () => { m.getCanvas().style.cursor = "pointer"; });
         m.on("mouseleave", l, () => { m.getCanvas().style.cursor = ""; });
@@ -190,8 +239,8 @@ export default function MapView({
         const p = e.features?.[0]?.properties as Record<string, string> | undefined;
         if (!p) return;
         pop.setLngLat((e.lngLat)).setHTML(
-          `<strong>${esc(p.name || "Unnamed")}</strong><br/>${esc(p.label)}` +
-          `<br/><span style="color:#626b7a">${esc(p.evidence)}</span>`
+          `<strong>${esc(p.name || "Unnamed car wash")}</strong><br/>${esc(p.label)}` +
+          `<br/><span style="color:#626b7a">Click for details</span>`
         ).addTo(m);
       });
       m.on("mouseleave", "washes", () => pop.remove());
@@ -209,29 +258,31 @@ export default function MapView({
     return () => { ro.disconnect(); m.remove(); map.current = null; ready.current = false; };
   }, []);
 
-  // sync competitor layer
+  // sync competitor layer. The open wash stays drawn even when its type is
+  // switched off in the filters, so its halo always has a dot inside it.
+  const washIdx = selectedWash ? washes.indexOf(selectedWash) : -1;
   useEffect(() => {
     const m = map.current; if (!m) return;
     const push = () => {
       const src = m.getSource("washes") as maplibregl.GeoJSONSource | undefined;
       if (!src) { m.once("load", push); return; }
+      m.setFilter("wash-halo", ["==", ["get", "idx"], washIdx]);
       src.setData({
         type: "FeatureCollection",
         features: washes.map((w, idx) => ({ w, idx }))
-          .filter(({ w }) => showFormats.has(w.format))
+          .filter(({ w, idx }) => showFormats.has(w.format) || idx === washIdx)
           .map(({ w, idx }) => ({
           type: "Feature" as const,
           geometry: { type: "Point" as const, coordinates: [w.lon, w.lat] },
           properties: {
-            idx, name: w.name ?? "", label: w.format_label,
-            evidence: w.format_source === "none" ? "format not determined" : w.format_evidence,
+            idx, name: w.name ?? "", label: FORMAT_NAME[w.format] ?? w.format_label,
             color: FORMAT_COLOR[w.format] ?? "#4b525e",
           },
         })),
       });
     };
     push();
-  }, [washes, showFormats]);
+  }, [washes, showFormats, washIdx]);
 
   // sync ranked sites
   useEffect(() => {
@@ -294,6 +345,16 @@ export default function MapView({
     }
     m.flyTo({ center: [selected.site.lon, selected.site.lat], zoom: Math.max(m.getZoom(), 13.2), duration: 750 });
   }, [selected, isoFeatures, showIso]);
+
+  // Bring the open car wash into view. On a phone the half sheet covers the
+  // lower part of the map, and the page hands this over only after the map
+  // has shrunk to the space above the sheet, so centering here lands the wash
+  // in the part still showing.
+  useEffect(() => {
+    const m = map.current;
+    if (!m || !selectedWash) return;
+    m.easeTo({ center: [selectedWash.lon, selectedWash.lat], zoom: Math.max(m.getZoom(), 12), duration: 750 });
+  }, [selectedWash]);
 
   // Inline styles, not Tailwind classes: maplibre-gl.css declares
   // `.maplibregl-map { position: relative }` and is bundled after Tailwind's

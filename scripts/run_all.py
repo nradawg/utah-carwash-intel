@@ -1,7 +1,7 @@
 """Rebuild every dataset from source, then export the browser payload.
 
 Usage:  .venv/bin/python scripts/run_all.py
-Runtime: roughly 5 minutes, dominated by the ACS summary-file download.
+Runtime: roughly 2 to 3 minutes, most of it network downloads.
 
 Every ingest asserts its row count against what was verified when the pipeline
 was written, so a source that silently changes shape fails loudly here rather
@@ -14,6 +14,7 @@ PY = str(ROOT / ".venv" / "bin" / "python")
 
 STEPS = [
     ("parcels",      "ingest_parcels.py"),
+    ("currency",     "check_parcels_current.py"),
     ("traffic",      "ingest_traffic.py"),
     ("roads",        "ingest_roads.py"),
     ("rooftops",     "ingest_rooftops.py"),
@@ -21,8 +22,11 @@ STEPS = [
     ("demographics", "ingest_demographics.py"),
     ("context",      "ingest_context.py"),
     ("countygeom",   "ingest_county_geom.py"),
+    ("countypep",    "ingest_county_pep.py"),
+    ("cities",       "ingest_city_growth.py"),
     ("osm",          "fetch_osm.py"),
     ("overture",     "fetch_overture.py"),
+    ("userwashes",   "import_user_washes.py"),
     ("merge",        "merge_competition.py"),
     ("sites",        "build_sites.py"),
     ("isochrones",   "build_isochrones.py"),
@@ -43,4 +47,11 @@ if __name__ == "__main__":
     r = subprocess.run([PY, str(ROOT / "scripts" / "export_web.py"), stamp])
     if r.returncode != 0:
         sys.exit("FAILED at export.")
+    # The QGIS pack reads the exported data, so it always runs last.
+    for name, script in (("migration", "build_migration_flows.py"), ("gis", "export_gis.py")):
+        if only and name not in only:
+            continue
+        print(f"\n=== {name} " + "=" * (60 - len(name)))
+        if subprocess.run([PY, str(ROOT / "scripts" / script)]).returncode != 0:
+            sys.exit(f"FAILED at {name}.")
     print(f"\nPipeline complete in {time.time()-t0:.0f}s. Data stamped {stamp}.")

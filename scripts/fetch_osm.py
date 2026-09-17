@@ -52,7 +52,7 @@ def fetch():
             "overture_id": None,
             "confidence": None,
             "socials": None,
-            "rating": None, "reviews": None, "google_category": None,
+            "place_category": None,
         })
     return rows
 

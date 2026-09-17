@@ -58,7 +58,9 @@ NAME_RULES = [
     (IBA,     r"\btouch[\s-]*less|touchless|automatic|in[\s-]*bay|rollover\b"),
 ]
 
-GOOGLE_CATEGORY = {
+# A listing's own category text. Overture fills it for published records; a
+# local Google Maps sweep maps its category into the same key but never ships.
+PLACE_CATEGORY = {
     "self service car wash": SELF, "car detailing service": HAND,
     "auto detailing service": HAND, "truck wash": TRUCK,
 }
@@ -72,7 +74,7 @@ def _brand_hit(text):
     return None, None
 
 
-def classify(name=None, tags=None, google_category=None, brand=None, operator=None):
+def classify(name=None, tags=None, place_category=None, brand=None, operator=None):
     """Return (format, confidence 0-1, source, evidence).
 
     Order matters: an observed OSM tag always beats an inference from the name.
@@ -99,11 +101,11 @@ def classify(name=None, tags=None, google_category=None, brand=None, operator=No
         if fmt:
             return fmt, 0.85, "brand", f"brand match: {b}"
 
-    # 3. Google category
-    if google_category:
-        gc = google_category.strip().lower()
-        if gc in GOOGLE_CATEGORY:
-            return GOOGLE_CATEGORY[gc], 0.7, "category", f"google category: {gc}"
+    # 3. Listing category
+    if place_category:
+        pc = place_category.strip().lower()
+        if pc in PLACE_CATEGORY:
+            return PLACE_CATEGORY[pc], 0.7, "category", f"place category: {pc}"
 
     # 4. Name regex
     low = (name or "").lower()

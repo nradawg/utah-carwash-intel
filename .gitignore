@@ -22,3 +22,6 @@ data/user/*
 data/raw_user.json
 # Census and IRS downloads, refetched on first use
 data/cache/
+
+# Built from your own car wash points in data/raw_user.json, so it stays local too.
+gis/my_car_washes.gpkg

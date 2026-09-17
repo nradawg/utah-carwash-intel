@@ -7,9 +7,11 @@ Three sources disagree, overlap, and have different licences, so this:
   4. records which sources contributed, so the licence story stays traceable.
 
 Google-derived fields stay flagged (`has_google`) so the published build can
-exclude them; OSM is ODbL and Overture is CDLA/Apache.
+exclude them; OSM is ODbL and Overture is CDLA/Apache. The friend's own survey
+points (src 'user', from data/raw_user.json) win every attribute but are held
+out of the published file the same way unless data/user/PUBLISH_OK exists.
 """
-import sys, json, csv, math, re, pathlib
+import sys, json, csv, math, re, pathlib, urllib.parse
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 import pyarrow as pa, pyarrow.parquet as pq
 from common import DATA, ROOT
@@ -17,12 +19,41 @@ from formats import classify, LABEL, UNKNOWN, HAND as HAND_FMT
 
 MERGE_M = 70          # two points closer than this are the same business
 GMAPS_CSV = DATA / "local" / "gmaps-carwash-ut.csv"
+# The friend's own points (scripts/import_user_washes.py). They may have been
+# copied from Google Maps, so they stay out of the published file unless he
+# says otherwise by creating data/user/PUBLISH_OK.
+USER_JSON = DATA / "raw_user.json"
+USER_PUBLISH_OK = DATA / "user" / "PUBLISH_OK"
 
 # Google categories that are actually car washes (the sweep also returns noise)
 CAT_OK = re.compile(r"car wash|self service car wash|auto detail|car detail|"
                     r"truck wash|detailing service", re.I)
 CAT_NO = re.compile(r"auto repair|oil change|tire|body shop|dealer|"
                     r"gas station|convenience store|laundr", re.I)
+
+
+def load_raw(path):
+    """Raw source rows, with the category key under its current name.
+
+    Older raw files (and data/raw_user.json from import_user_washes.py) still
+    say google_category, although the value came from Overture or was empty.
+    """
+    rows = json.loads(path.read_text()) if path.exists() else []
+    for r in rows:
+        if "google_category" in r:
+            r["place_category"] = r.pop("google_category")
+    return rows
+
+
+def clean_url(u):
+    """Drop utm_ tracking parameters. They say which ad or listing sent the
+    click (one read utm_source=Google Maps), which is noise on a public map."""
+    if not u or "utm_" not in u:
+        return u
+    parts = urllib.parse.urlsplit(u)
+    q = [(k, v) for k, v in urllib.parse.parse_qsl(parts.query, keep_blank_values=True)
+         if not k.lower().startswith("utm_")]
+    return urllib.parse.urlunsplit(parts._replace(query=urllib.parse.urlencode(q)))
 
 
 def norm_name(n):
@@ -65,7 +96,8 @@ def load_gmaps():
                 "phone": r.get("phone") or None,
                 "opening_hours": r.get("open_hours") or None, "parcel_id": None,
                 "tags": {}, "rating": f("review_rating"), "reviews": i("review_count"),
-                "google_category": cat.strip().lower() or None,
+                # Same key as Overture's category so the classifier reads both.
+                "place_category": cat.strip().lower() or None,
             })
     return rows
 
@@ -112,7 +144,8 @@ def cluster(rows):
     return list(groups.values())
 
 
-PRIORITY = {"gmaps": 3, "overture": 2, "osm": 1}
+# A point someone checked in person beats every dataset.
+PRIORITY = {"user": 4, "gmaps": 3, "overture": 2, "osm": 1}
 
 
 def merge_group(g):
@@ -128,10 +161,15 @@ def merge_group(g):
         tags.update(r.get("tags") or {})
     srcs = sorted({r["src"] for r in g})
     nm = (pick("name") or "").lower()
-    fmt, conf, fsrc, ev = classify(
-        name=pick("name"), tags=tags,
-        google_category=pick("google_category"),
-        brand=pick("brand"), operator=pick("operator"))
+    user_fmt = next((r for r in g if r.get("user_format")), None)
+    if user_fmt:
+        fmt, conf, fsrc, ev = (user_fmt["user_format"], 0.95, "user",
+                               f"your own survey: {user_fmt['user_format_text']}")
+    else:
+        fmt, conf, fsrc, ev = classify(
+            name=pick("name"), tags=tags,
+            place_category=pick("place_category"),
+            brand=pick("brand"), operator=pick("operator"))
     # A detailing shop is not competition for an express tunnel. Mobile
     # detailers have no fixed premises at all. Keep them (they signal car-care
     # demand) but exclude them from competitor counts by default.
@@ -149,6 +187,8 @@ def merge_group(g):
                 datasets.add(f"Overture/{d}")
             if not r.get("datasets"):
                 datasets.add("Overture")
+        elif r["src"] == "user":
+            datasets.add("Your own survey")
 
     socials = []
     for r in g:
@@ -160,7 +200,7 @@ def merge_group(g):
         "name": pick("name"), "lat": round(best["lat"], 6), "lon": round(best["lon"], 6),
         "address": pick("address"), "city": pick("city"), "postcode": pick("postcode"),
         "brand": pick("brand"), "brand_wikidata": pick("brand_wikidata"),
-        "website": pick("website"), "phone": pick("phone"),
+        "website": clean_url(pick("website")), "phone": pick("phone"),
         "opening_hours": pick("opening_hours"),
         "socials": ",".join(socials[:3]) or None,
         "osm_id": pick("osm_id"), "overture_id": pick("overture_id"),
@@ -184,36 +224,48 @@ def merge_group(g):
 
 
 if __name__ == "__main__":
-    osm = json.loads((DATA / "raw_osm.json").read_text())
-    ovt = json.loads((DATA / "raw_overture.json").read_text())
+    osm = load_raw(DATA / "raw_osm.json")
+    ovt = load_raw(DATA / "raw_overture.json")
     gm = load_gmaps()
-    print(f"inputs: osm={len(osm)}  overture={len(ovt)}  gmaps={len(gm)}")
+    usr = load_raw(USER_JSON)
+    print(f"inputs: osm={len(osm)}  overture={len(ovt)}  gmaps={len(gm)}  user={len(usr)}")
 
-    groups = cluster(osm + ovt + gm)
+    # Unnamed single-source points are usually noise, but a point the friend
+    # placed himself is a real wash whether or not he typed a name.
+    def keep(m):
+        return m["name"] or m["n_sources"] > 1 or "user" in m["sources"].split(",")
+
+    groups = cluster(osm + ovt + gm + usr)
     merged = [merge_group(g) for g in groups]
-    merged = [m for m in merged if m["name"] or m["n_sources"] > 1]
+    merged = [m for m in merged if keep(m)]
     print(f"  deduped -> {len(merged):,} distinct car washes")
 
     pq.write_table(pa.Table.from_pylist(merged), DATA / "carwashes.parquet", compression="zstd")
 
-    # Publishable variant: re-merge each cluster using ONLY open-licensed
-    # members, so no published attribute can trace back to Google. Excluding
-    # google-only records is not enough on its own, because the attribute
-    # priority in merge_group would otherwise pick a Google name or address
-    # for a cluster that also has an OSM or Overture member.
-    open_rows = []
-    for g in groups:
-        og = [r for r in g if r["src"] != "gmaps"]
-        if not og:
-            continue
-        m = merge_group(og)
-        if m["name"] or m["n_sources"] > 1:
-            open_rows.append(m)
+    # Publishable variant: clustered again from the open-licensed rows alone.
+    # Re-merging each cluster of the full run was not enough: a Google point
+    # between an OSM and an Overture record linked them into one cluster, so
+    # the private sweep still decided which open records merged (447 published
+    # washes with the sweep file present, 453 from the open sources alone,
+    # 2026-09-17). Built from OSM and Overture
+    # only, plus the friend's own points when data/user/PUBLISH_OK exists, the
+    # published file is the same whether or not the sweep file is on disk.
+    publish_user = USER_PUBLISH_OK.exists()
+    open_input = osm + ovt + (usr if publish_user else [])
+    open_rows = [m for m in (merge_group(g) for g in cluster(open_input)) if keep(m)]
+    # Drop the Google-only columns outright. They are always empty here, but an
+    # empty "rating" column in a public file still reads like a leak.
+    for m in open_rows:
+        for k in ("rating", "reviews", "has_google"):
+            m.pop(k, None)
     pq.write_table(pa.Table.from_pylist(open_rows), DATA / "carwashes_open.parquet",
                    compression="zstd")
     print(f"\n  open-licensed variant: {len(open_rows):,} records "
           f"({sum(1 for m in open_rows if m['is_competitor']):,} wash facilities), "
-          "attributes sourced only from OSM and Overture")
+          "attributes sourced only from OSM and Overture"
+          + (" plus your own survey (data/user/PUBLISH_OK is set)" if publish_user else ""))
+    if usr and not publish_user:
+        print(f"  your own survey: {len(usr)} points used locally, kept out of the published file")
     from collections import Counter
     fc = Counter(m["format"] for m in merged)
     sc = Counter(m["format_source"] for m in merged)

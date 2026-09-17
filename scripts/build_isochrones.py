@@ -172,6 +172,11 @@ if __name__ == "__main__":
             if hull.is_empty or hull.geom_type not in ("Polygon", "MultiPolygon"):
                 continue
             polys[mins] = hull
+        if not polys:
+            # No usable shape: do not let nearby lots map to this origin, or
+            # they would get an empty drive area instead of a working neighbour.
+            _skipped_idx.add(k)
+            continue
         for mins, hull in polys.items():
             feats.append({
                 "type": "Feature",

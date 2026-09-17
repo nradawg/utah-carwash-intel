@@ -79,4 +79,7 @@ def assert_count(name, actual, expected, tol=0.10):
     flag = "OK" if lo <= actual <= hi else "DRIFT"
     print(f"  [{flag}] {name}: {actual:,} (expected ~{expected:,})")
     if flag == "DRIFT":
-        print(f"     ^ outside +/-{int(tol*100)}%. Source changed. Investigate before trusting output.")
+        # The README promises a drifted source stops the run, so it must not
+        # carry on and export a quietly wrong map.
+        raise SystemExit(f"  [DRIFT] {name}: {actual:,} is outside +/-{int(tol*100)}% of ~{expected:,}. "
+                         "The source changed. Investigate, then update the expected count.")

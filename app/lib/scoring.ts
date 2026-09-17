@@ -4,7 +4,8 @@
  * Three layers, deliberately not a single number:
  *   1. Hard gates   - binary. A site that fails is not ranked at all.
  *   2. Weighted score - five pillars, 100 points, weights user-adjustable.
- *   3. Explanation  - the factors that actually moved this site, in plain words.
+ *   3. Explanation  - built in plain words for the selected site only, in
+ *                     components/plain.ts, so ranking 45k rows builds no strings.
  *
  * Weighting rationale (see /methodology): traffic carries only 15 points
  * because DRB finds car count has almost no predictive value on site
@@ -35,6 +36,29 @@ export interface Site {
   multifamily_pct: number | null; car_commute_pct: number | null;
   median_home_value: number | null;
   value_flag: string; county_value_basis: string;
+  // Added by the city growth and parcel link steps. Optional so the app still
+  // loads a sites.parquet produced before those columns existed.
+  city_name?: string | null; city_pop_2025?: number | null;
+  /** Percent change, 2020 Census to 2025 estimate. null outside city limits. */
+  city_growth_pct?: number | null;
+  parcel_url?: string | null;
+  parcel_url_kind?: "parcel" | "search" | "statewide" | "homepage" | null;
+  parcel_url_label?: string | null;
+  /** Nearest road point for Street View. null when no road is close enough. */
+  sv_lat?: number | null; sv_lon?: number | null;
+  /** false when the home count for this area is known to be missing, not zero. */
+  rooftops_known?: boolean | null;
+  /** Short plain name of the road the traffic count is on ("Route 40"). */
+  aadt_road?: string | null;
+  /** County homes permitted in 2026 per 1,000 residents (July 2025 population). */
+  county_permits_per_1k?: number | null;
+  /** Assessed total value minus land value, dollars. */
+  improvement_value?: number | null;
+  /**
+   * false when the county has split, merged or renumbered the parcel since the
+   * tax roll this row came from. Missing or null counts as current.
+   */
+  parcel_current?: boolean | null;
 }
 
 export interface Inputs {
@@ -51,6 +75,9 @@ export interface Inputs {
   place: string;             // free-text match on city or street
   minScore: number;          // hide results below this score
   allowBelowMarket: boolean; // include greenbelt/non-market assessed parcels
+  minCityGrowth: number;     // percent growth 2020 to 2025, 0 disables
+  skipBuilt: boolean;        // hide lots with a sizable building (hasSizableBuilding)
+  includeStale: boolean;     // include parcels the county has since split, merged or renumbered
   weights: Weights;
 }
 
@@ -66,13 +93,13 @@ export const DEFAULT_INPUTS: Inputs = {
   acresNeeded: 1.0, minDimFt: 225, budget: 3_000_000, minAadt: 15_000,
   maxSpeed: 45, compRing: 3, excludeFlood: true, vacantOnly: false,
   spreadMi: 1, county: null, place: "", minScore: 0,
-  allowBelowMarket: false, weights: { ...DEFAULT_WEIGHTS },
+  allowBelowMarket: false, minCityGrowth: 0, skipBuilt: true, includeStale: false,
+  weights: { ...DEFAULT_WEIGHTS },
 };
 
-export interface Factor { key: string; label: string; score: number; weight: number; note: string; }
+export interface Factor { key: string; label: string; score: number; weight: number; }
 export interface Scored {
   site: Site; total: number; factors: Factor[];
-  strengths: string[]; weaknesses: string[];
   /** Lower-scoring parcels suppressed within spreadMi of this one. */
   nearby: number;
 }
@@ -82,6 +109,64 @@ const norm = (v: number, lo: number, hi: number) =>
   hi === lo ? 0 : Math.max(0, Math.min(1, (v - lo) / (hi - lo)));
 
 const fmt = (n: number) => n.toLocaleString("en-US");
+
+/**
+ * The 2014 to 2024 traffic change, or null when it cannot be trusted. Counts on
+ * re-drawn segments swing by thousands of percent and say nothing about the
+ * road, so anything past plus or minus 100% is left out of the score.
+ */
+export const usableTrafficGrowth = (s: Site): number | null =>
+  s.aadt_growth_pct != null && s.aadt_growth_pct >= -100 && s.aadt_growth_pct <= 100
+    ? s.aadt_growth_pct : null;
+
+export interface Part { w: number; v: number }
+
+/**
+ * County homes permitted per 1,000 residents, or null when the sites file has
+ * no usable figure. A raw count favours big counties; per head it measures
+ * how fast the county is actually adding homes.
+ */
+export const permitsPer1k = (s: Site): number | null => {
+  const v = s.county_permits_per_1k;
+  return typeof v === "number" && Number.isFinite(v) ? v : null;
+};
+
+/** The per 1,000 range the Growth factor spreads from 0 to 1. plain.ts words cut points on it. */
+export const PERMITS_PER_1K_RANGE = [1, 10] as const;
+
+/**
+ * The Growth factor's inputs, each with its weight and its 0..1 value, so the
+ * wording in components/plain.ts names what actually moved this lot's score.
+ * Town growth is the most local growth signal, so it leads when the lot is
+ * inside a town with a Census figure. Outside towns the weight goes back to
+ * county permits and empty land. export_gis.py mirrors this exactly.
+ */
+export function growthParts(s: Site): { town: Part; permits: Part; trend: Part; vacancy: Part } {
+  // Older sites files have only the raw county count, so they keep the old range.
+  const per1k = permitsPer1k(s);
+  const permits = per1k != null
+    ? norm(per1k, PERMITS_PER_1K_RANGE[0], PERMITS_PER_1K_RANGE[1])
+    : norm(s.county_permits_2026, 60, 3_200);
+  const roofGrowth = norm(usableTrafficGrowth(s) ?? 0, 0, 40);
+  const vacancy = s.is_vacant ? 1 : 0.45;   // a teardown costs time and money
+  const city = s.city_growth_pct;
+  return city != null
+    ? { permits: { w: 0.35, v: permits }, town: { w: 0.30, v: norm(city, 0, 30) },
+        trend: { w: 0.10, v: roofGrowth }, vacancy: { w: 0.25, v: vacancy } }
+    : { permits: { w: 0.45, v: permits }, town: { w: 0, v: 0 },
+        trend: { w: 0.20, v: roofGrowth }, vacancy: { w: 0.35, v: vacancy } };
+}
+
+/**
+ * A working property, not a lot to build on: buildings the county values at
+ * $400,000 or more, or 10,000 sq ft or more of floor. A supermarket or a
+ * hospital passes every other test, so without this they top the ranking.
+ * export_gis.py uses the same two cut points.
+ */
+export const BUILT_VALUE = 400_000;
+export const BUILT_SQFT = 10_000;
+export const hasSizableBuilding = (s: Site) =>
+  (s.improvement_value ?? 0) >= BUILT_VALUE || (s.bldg_sqft ?? 0) >= BUILT_SQFT;
 
 /** Hard gates. Returns a reason string when the site fails, else null. */
 export function gateFail(s: Site, i: Inputs): string | null {
@@ -99,6 +184,18 @@ export function gateFail(s: Site, i: Inputs): string | null {
         !(s.address ?? "").toLowerCase().includes(q)) return "does not match the place filter";
   }
   if (!i.allowBelowMarket && s.value_flag === "below_market") return "land value assessed below market (greenbelt or exempt)";
+  if (i.skipBuilt && hasSizableBuilding(s)) {
+    return (s.bldg_sqft ?? 0) >= BUILT_SQFT
+      ? `a ${fmt(Math.round(s.bldg_sqft))} sq ft building already stands here`
+      : `the county values the buildings here at $${fmt(Math.round(s.improvement_value ?? 0))}`;
+  }
+  if (!i.includeStale && s.parcel_current === false) return "the county has since split, merged or renumbered this parcel";
+  if (i.minCityGrowth > 0) {
+    // Unincorporated land has no town figure to test, so it cannot pass.
+    const g = s.city_growth_pct;
+    if (g == null) return s.city_name ? "no growth figure for this town" : "outside city limits, so there is no town growth figure";
+    if (g < i.minCityGrowth) return `${s.city_name ?? "this town"} grew ${g}% since 2020, under ${i.minCityGrowth}%`;
+  }
   return null;
 }
 
@@ -141,45 +238,40 @@ export function scoreSite(s: Site, i: Inputs): Scored {
   // Renters lack driveways and hoses, so multifamily over-indexes for washes.
   const multifam = norm(s.multifamily_pct ?? 0, 0, 35);
   const commute = norm(s.car_commute_pct ?? 0, 55, 92);
-  const demandScore = clamp01(0.38 * density + 0.22 * income + 0.18 * vehicles + 0.12 * multifam + 0.10 * commute);
+  // A missing home count is not an empty area, so it must not score as one.
+  // Drop density and let the other measures carry the whole factor.
+  const demandScore = s.rooftops_known === false
+    ? clamp01((0.22 * income + 0.18 * vehicles + 0.12 * multifam + 0.10 * commute) / (0.22 + 0.18 + 0.12 + 0.10))
+    : clamp01(0.38 * density + 0.22 * income + 0.18 * vehicles + 0.12 * multifam + 0.10 * commute);
 
   // --- Traffic quality ------------------------------------------------------
   // Capture rate falls as volume rises, so this saturates rather than scaling.
   const vol = norm(Math.log10(Math.max(s.aadt ?? 1, 1)), Math.log10(8_000), Math.log10(60_000));
-  const trend = norm(s.aadt_growth_pct ?? 0, -5, 45);
+  const trafficGrowth = usableTrafficGrowth(s);
+  const trend = norm(trafficGrowth ?? 0, -5, 45);
   const nonTruck = 1 - norm(s.truck_share ?? 0.04, 0.02, 0.25);
   const measured = s.aadt_source === "udot" ? 1 : s.aadt_source === "local" ? 0.7 : 0.3;
   const trafficScore = clamp01(0.42 * vol + 0.26 * trend + 0.18 * nonTruck + 0.14 * measured);
 
   // --- Growth and durability ------------------------------------------------
-  const permits = norm(s.county_permits_2026, 60, 3_200);
-  const roofGrowth = norm(s.aadt_growth_pct ?? 0, 0, 40);
-  const vacancy = s.is_vacant ? 1 : 0.45;   // a teardown costs time and money
-  const growthScore = clamp01(0.44 * permits + 0.28 * roofGrowth + 0.28 * vacancy);
+  // Summed in the same order as export_gis.py so both floor to the same number.
+  const gp = growthParts(s);
+  const growthScore = clamp01(s.city_growth_pct != null
+    ? gp.permits.w * gp.permits.v + gp.town.w * gp.town.v + gp.trend.w * gp.trend.v + gp.vacancy.w * gp.vacancy.v
+    : gp.permits.w * gp.permits.v + gp.trend.w * gp.trend.v + gp.vacancy.w * gp.vacancy.v);
 
   const factors: Factor[] = [
-    { key: "access", label: "Access & site", score: accessScore, weight: w.access,
-      note: `${s.acres} ac, ${s.max_dim_ft} ft frontage, ${s.road_class ?? "unclassified"}${s.road_speed ? `, ${s.road_speed} mph` : ""}` },
-    { key: "competition", label: "Competitive position", score: compScore, weight: w.competition,
-      note: `${expr} express tunnel${expr === 1 ? "" : "s"} and ${comp - expr} other wash${comp - expr === 1 ? "" : "es"} within ${ring} mi; nearest tunnel ${s.dist_nearest_express_mi ?? "none"} mi` },
-    { key: "demand", label: "Demand density", score: demandScore, weight: w.demand,
-      note: `${fmt(roofs)} rooftops within ${ring === 1 ? 1 : 3} mi, $${fmt(Math.round(s.median_hh_income ?? 0))} median income, ${s.vehicles_per_hh ?? "?"} vehicles per household` },
-    { key: "traffic", label: "Traffic quality", score: trafficScore, weight: w.traffic,
-      note: s.aadt ? `${fmt(s.aadt)} AADT (${s.aadt_source === "udot" ? "UDOT count" : "local road count"})${s.aadt_growth_pct != null ? `, ${s.aadt_growth_pct > 0 ? "+" : ""}${s.aadt_growth_pct}% over 10 yr` : ""}` : "no traffic count nearby" },
-    { key: "growth", label: "Growth & durability", score: growthScore, weight: w.growth,
-      note: `${fmt(s.county_permits_2026)} housing units permitted in ${s.county} County in 2026${s.is_vacant ? ", vacant land" : ", existing building"}` },
+    { key: "access", label: "Road and lot", score: accessScore, weight: w.access },
+    { key: "competition", label: "Competition", score: compScore, weight: w.competition },
+    { key: "demand", label: "Homes nearby", score: demandScore, weight: w.demand },
+    { key: "traffic", label: "Traffic", score: trafficScore, weight: w.traffic },
+    { key: "growth", label: "Growth", score: growthScore, weight: w.growth },
   ];
 
   const wTotal = w.access + w.competition + w.demand + w.traffic + w.growth || 1;
   const total = factors.reduce((a, f) => a + f.score * f.weight, 0) / wTotal * 100;
 
-  const ranked = [...factors].sort((a, b) => b.score - a.score);
-  return {
-    site: s, total, nearby: 0,
-    factors,
-    strengths: ranked.filter(f => f.score >= 0.6).slice(0, 2).map(f => `${f.label}: ${f.note}`),
-    weaknesses: ranked.filter(f => f.score < 0.45).slice(-2).map(f => `${f.label}: ${f.note}`),
-  };
+  return { site: s, total, nearby: 0, factors };
 }
 
 function clamp01(v: number) { return Math.max(0, Math.min(1, v)); }

@@ -50,8 +50,8 @@ def fetch():
             "osm_id": None, "overture_id": oid,
             "socials": list(socials) if socials else None,
             "datasets": sorted(set(datasets)) if datasets else None,
-            "tags": {}, "rating": None, "reviews": None,
-            "google_category": "auto detailing service" if cat == "auto_detailing" else None,
+            "tags": {},
+            "place_category": "auto detailing service" if cat == "auto_detailing" else None,
             "confidence": conf,
         })
     return rows

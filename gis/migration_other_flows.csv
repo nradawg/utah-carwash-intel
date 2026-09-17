@@ -1,0 +1,312 @@
+dest_county,dest_geoid,irs_row,meaning,people,households,avg_agi_per_return
+Beaver County,49001,Total Migration-US and Foreign,"Everyone who moved in, from anywhere",283,139,53489
+Beaver County,49001,Total Migration-US,Everyone who moved in from inside the US,283,139,53489
+Beaver County,49001,Total Migration-Same State,Moved in from another Utah county,213,100,53880
+Beaver County,49001,Total Migration-Different State,Moved in from another state,70,39,52487
+Beaver County,49001,Other flows - Same State,Moved in from Utah counties that sent fewer than 20 households each,116,59,59458
+Beaver County,49001,Other flows - Different State,Moved in from counties in other states that sent fewer than 20 households each,70,39,52487
+Beaver County,49001,Other flows - Midwest,Moved in from Midwest counties that sent fewer than 20 households each,,,
+Beaver County,49001,Other flows - South,Moved in from South counties that sent fewer than 20 households each,,,
+Beaver County,49001,Other flows - West,Moved in from West counties that sent fewer than 20 households each,70,39,52487
+Box Elder County,49003,Total Migration-US and Foreign,"Everyone who moved in, from anywhere",3446,1691,63799
+Box Elder County,49003,Total Migration-US,Everyone who moved in from inside the US,3446,1691,63799
+Box Elder County,49003,Total Migration-Same State,Moved in from another Utah county,2483,1229,64044
+Box Elder County,49003,Total Migration-Different State,Moved in from another state,963,462,63149
+Box Elder County,49003,Other flows - Same State,Moved in from Utah counties that sent fewer than 20 households each,153,74,63662
+Box Elder County,49003,Other flows - Different State,Moved in from counties in other states that sent fewer than 20 households each,926,440,64409
+Box Elder County,49003,Other flows - Northeast,Moved in from Northeast counties that sent fewer than 20 households each,,,
+Box Elder County,49003,Other flows - Midwest,Moved in from Midwest counties that sent fewer than 20 households each,80,41,75585
+Box Elder County,49003,Other flows - South,Moved in from South counties that sent fewer than 20 households each,254,108,63046
+Box Elder County,49003,Other flows - West,Moved in from West counties that sent fewer than 20 households each,592,291,63340
+Box Elder County,49003,Foreign - Other flows,"Moved in from abroad, in groups too small for IRS to list",,,
+Cache County,49005,Total Migration-US and Foreign,"Everyone who moved in, from anywhere",6932,3893,48315
+Cache County,49005,Total Migration-US,Everyone who moved in from inside the US,6878,3867,48397
+Cache County,49005,Total Migration-Same State,Moved in from another Utah county,3267,1768,50460
+Cache County,49005,Total Migration-Different State,Moved in from another state,3611,2099,46658
+Cache County,49005,Total Migration-Foreign,Moved in from outside the US,54,26,36154
+Cache County,49005,Other flows - Same State,Moved in from Utah counties that sent fewer than 20 households each,215,113,54177
+Cache County,49005,Other flows - Different State,Moved in from counties in other states that sent fewer than 20 households each,2347,1340,47713
+Cache County,49005,Other flows - Northeast,Moved in from Northeast counties that sent fewer than 20 households each,173,95,58653
+Cache County,49005,Other flows - Midwest,Moved in from Midwest counties that sent fewer than 20 households each,371,212,44462
+Cache County,49005,Other flows - South,Moved in from South counties that sent fewer than 20 households each,644,351,49151
+Cache County,49005,Other flows - West,Moved in from West counties that sent fewer than 20 households each,1159,682,46460
+Cache County,49005,Foreign - Other flows,"Moved in from abroad, in groups too small for IRS to list",54,26,36154
+Carbon County,49007,Total Migration-US and Foreign,"Everyone who moved in, from anywhere",937,465,46751
+Carbon County,49007,Total Migration-US,Everyone who moved in from inside the US,937,465,46751
+Carbon County,49007,Total Migration-Same State,Moved in from another Utah county,620,313,45521
+Carbon County,49007,Total Migration-Different State,Moved in from another state,317,152,49289
+Carbon County,49007,Other flows - Same State,Moved in from Utah counties that sent fewer than 20 households each,177,87,47540
+Carbon County,49007,Other flows - Different State,Moved in from counties in other states that sent fewer than 20 households each,317,152,49289
+Carbon County,49007,Other flows - Northeast,Moved in from Northeast counties that sent fewer than 20 households each,,,
+Carbon County,49007,Other flows - Midwest,Moved in from Midwest counties that sent fewer than 20 households each,,,
+Carbon County,49007,Other flows - South,Moved in from South counties that sent fewer than 20 households each,57,28,44857
+Carbon County,49007,Other flows - West,Moved in from West counties that sent fewer than 20 households each,260,124,50290
+Daggett County,49009,Total Migration-US and Foreign,"Everyone who moved in, from anywhere",51,30,65733
+Daggett County,49009,Total Migration-US,Everyone who moved in from inside the US,51,30,65733
+Daggett County,49009,Total Migration-Same State,Moved in from another Utah county,51,30,65733
+Daggett County,49009,Other flows - Same State,Moved in from Utah counties that sent fewer than 20 households each,51,30,65733
+Daggett County,49009,Other flows - Midwest,Moved in from Midwest counties that sent fewer than 20 households each,,,
+Daggett County,49009,Other flows - South,Moved in from South counties that sent fewer than 20 households each,,,
+Daggett County,49009,Other flows - West,Moved in from West counties that sent fewer than 20 households each,,,
+Davis County,49011,Total Migration-US and Foreign,"Everyone who moved in, from anywhere",21540,11332,65996
+Davis County,49011,Total Migration-US,Everyone who moved in from inside the US,21214,11208,65942
+Davis County,49011,Total Migration-Same State,Moved in from another Utah county,12842,7047,61104
+Davis County,49011,Total Migration-Different State,Moved in from another state,8372,4161,74136
+Davis County,49011,Total Migration-Foreign,Moved in from outside the US,326,124,70871
+Davis County,49011,Foreign - APO/FPO ZIPs,Moved in from US military mail addresses abroad,262,103,71447
+Davis County,49011,Other flows - Same State,Moved in from Utah counties that sent fewer than 20 households each,169,86,54919
+Davis County,49011,Other flows - Different State,Moved in from counties in other states that sent fewer than 20 households each,5343,2651,75993
+Davis County,49011,Other flows - Northeast,Moved in from Northeast counties that sent fewer than 20 households each,416,220,73695
+Davis County,49011,Other flows - Midwest,Moved in from Midwest counties that sent fewer than 20 households each,965,481,84913
+Davis County,49011,Other flows - South,Moved in from South counties that sent fewer than 20 households each,2228,1061,77318
+Davis County,49011,Other flows - West,Moved in from West counties that sent fewer than 20 households each,1734,889,70155
+Davis County,49011,Foreign - Other flows,"Moved in from abroad, in groups too small for IRS to list",64,21,68048
+Duchesne County,49013,Total Migration-US and Foreign,"Everyone who moved in, from anywhere",982,468,56840
+Duchesne County,49013,Total Migration-US,Everyone who moved in from inside the US,982,468,56840
+Duchesne County,49013,Total Migration-Same State,Moved in from another Utah county,775,367,56466
+Duchesne County,49013,Total Migration-Different State,Moved in from another state,207,101,58198
+Duchesne County,49013,Other flows - Same State,Moved in from Utah counties that sent fewer than 20 households each,217,108,49296
+Duchesne County,49013,Other flows - Different State,Moved in from counties in other states that sent fewer than 20 households each,207,101,58198
+Duchesne County,49013,Other flows - Northeast,Moved in from Northeast counties that sent fewer than 20 households each,,,
+Duchesne County,49013,Other flows - Midwest,Moved in from Midwest counties that sent fewer than 20 households each,,,
+Duchesne County,49013,Other flows - South,Moved in from South counties that sent fewer than 20 households each,,,
+Duchesne County,49013,Other flows - West,Moved in from West counties that sent fewer than 20 households each,207,101,58198
+Duchesne County,49013,Foreign - Other flows,"Moved in from abroad, in groups too small for IRS to list",,,
+Emery County,49015,Total Migration-US and Foreign,"Everyone who moved in, from anywhere",442,221,49955
+Emery County,49015,Total Migration-US,Everyone who moved in from inside the US,442,221,49955
+Emery County,49015,Total Migration-Same State,Moved in from another Utah county,349,172,49622
+Emery County,49015,Total Migration-Different State,Moved in from another state,93,49,51122
+Emery County,49015,Other flows - Same State,Moved in from Utah counties that sent fewer than 20 households each,189,94,44553
+Emery County,49015,Other flows - Different State,Moved in from counties in other states that sent fewer than 20 households each,93,49,51122
+Emery County,49015,Other flows - Northeast,Moved in from Northeast counties that sent fewer than 20 households each,,,
+Emery County,49015,Other flows - Midwest,Moved in from Midwest counties that sent fewer than 20 households each,,,
+Emery County,49015,Other flows - South,Moved in from South counties that sent fewer than 20 households each,,,
+Emery County,49015,Other flows - West,Moved in from West counties that sent fewer than 20 households each,93,49,51122
+Emery County,49015,Foreign - Other flows,"Moved in from abroad, in groups too small for IRS to list",,,
+Garfield County,49017,Total Migration-US and Foreign,"Everyone who moved in, from anywhere",315,157,62955
+Garfield County,49017,Total Migration-US,Everyone who moved in from inside the US,315,157,62955
+Garfield County,49017,Total Migration-Same State,Moved in from another Utah county,170,79,56038
+Garfield County,49017,Total Migration-Different State,Moved in from another state,145,78,69962
+Garfield County,49017,Other flows - Same State,Moved in from Utah counties that sent fewer than 20 households each,170,79,56038
+Garfield County,49017,Other flows - Different State,Moved in from counties in other states that sent fewer than 20 households each,145,78,69962
+Garfield County,49017,Other flows - Northeast,Moved in from Northeast counties that sent fewer than 20 households each,,,
+Garfield County,49017,Other flows - Midwest,Moved in from Midwest counties that sent fewer than 20 households each,,,
+Garfield County,49017,Other flows - South,Moved in from South counties that sent fewer than 20 households each,38,20,57500
+Garfield County,49017,Other flows - West,Moved in from West counties that sent fewer than 20 households each,107,58,74276
+Grand County,49019,Total Migration-US and Foreign,"Everyone who moved in, from anywhere",635,414,65874
+Grand County,49019,Total Migration-US,Everyone who moved in from inside the US,635,414,65874
+Grand County,49019,Total Migration-Same State,Moved in from another Utah county,213,128,68742
+Grand County,49019,Total Migration-Different State,Moved in from another state,422,286,64594
+Grand County,49019,Other flows - Same State,Moved in from Utah counties that sent fewer than 20 households each,98,56,52661
+Grand County,49019,Other flows - Different State,Moved in from counties in other states that sent fewer than 20 households each,422,286,64594
+Grand County,49019,Other flows - Northeast,Moved in from Northeast counties that sent fewer than 20 households each,33,29,46414
+Grand County,49019,Other flows - Midwest,Moved in from Midwest counties that sent fewer than 20 households each,62,41,63220
+Grand County,49019,Other flows - South,Moved in from South counties that sent fewer than 20 households each,77,59,57271
+Grand County,49019,Other flows - West,Moved in from West counties that sent fewer than 20 households each,250,157,71057
+Grand County,49019,Foreign - Other flows,"Moved in from abroad, in groups too small for IRS to list",,,
+Iron County,49021,Total Migration-US and Foreign,"Everyone who moved in, from anywhere",4254,2264,57714
+Iron County,49021,Total Migration-US,Everyone who moved in from inside the US,4254,2264,57714
+Iron County,49021,Total Migration-Same State,Moved in from another Utah county,1871,1018,54953
+Iron County,49021,Total Migration-Different State,Moved in from another state,2383,1246,59970
+Iron County,49021,Other flows - Same State,Moved in from Utah counties that sent fewer than 20 households each,314,171,39099
+Iron County,49021,Other flows - Different State,Moved in from counties in other states that sent fewer than 20 households each,1346,724,56023
+Iron County,49021,Other flows - Northeast,Moved in from Northeast counties that sent fewer than 20 households each,61,35,49171
+Iron County,49021,Other flows - Midwest,Moved in from Midwest counties that sent fewer than 20 households each,220,117,57786
+Iron County,49021,Other flows - South,Moved in from South counties that sent fewer than 20 households each,329,165,59055
+Iron County,49021,Other flows - West,Moved in from West counties that sent fewer than 20 households each,736,407,54877
+Iron County,49021,Foreign - Other flows,"Moved in from abroad, in groups too small for IRS to list",,,
+Juab County,49023,Total Migration-US and Foreign,"Everyone who moved in, from anywhere",721,314,66752
+Juab County,49023,Total Migration-US,Everyone who moved in from inside the US,721,314,66752
+Juab County,49023,Total Migration-Same State,Moved in from another Utah county,657,284,65229
+Juab County,49023,Total Migration-Different State,Moved in from another state,64,30,81167
+Juab County,49023,Other flows - Same State,Moved in from Utah counties that sent fewer than 20 households each,168,76,74724
+Juab County,49023,Other flows - Different State,Moved in from counties in other states that sent fewer than 20 households each,64,30,81167
+Juab County,49023,Other flows - Northeast,Moved in from Northeast counties that sent fewer than 20 households each,,,
+Juab County,49023,Other flows - Midwest,Moved in from Midwest counties that sent fewer than 20 households each,,,
+Juab County,49023,Other flows - South,Moved in from South counties that sent fewer than 20 households each,,,
+Juab County,49023,Other flows - West,Moved in from West counties that sent fewer than 20 households each,64,30,81167
+Kane County,49025,Total Migration-US and Foreign,"Everyone who moved in, from anywhere",619,330,72300
+Kane County,49025,Total Migration-US,Everyone who moved in from inside the US,619,330,72300
+Kane County,49025,Total Migration-Same State,Moved in from another Utah county,227,111,68955
+Kane County,49025,Total Migration-Different State,Moved in from another state,392,219,73995
+Kane County,49025,Other flows - Same State,Moved in from Utah counties that sent fewer than 20 households each,172,85,71706
+Kane County,49025,Other flows - Different State,Moved in from counties in other states that sent fewer than 20 households each,259,151,79642
+Kane County,49025,Other flows - Northeast,Moved in from Northeast counties that sent fewer than 20 households each,,,
+Kane County,49025,Other flows - Midwest,Moved in from Midwest counties that sent fewer than 20 households each,30,22,82318
+Kane County,49025,Other flows - South,Moved in from South counties that sent fewer than 20 households each,64,41,76512
+Kane County,49025,Other flows - West,Moved in from West counties that sent fewer than 20 households each,165,88,80432
+Millard County,49027,Total Migration-US and Foreign,"Everyone who moved in, from anywhere",553,255,53894
+Millard County,49027,Total Migration-US,Everyone who moved in from inside the US,553,255,53894
+Millard County,49027,Total Migration-Same State,Moved in from another Utah county,370,173,52434
+Millard County,49027,Total Migration-Different State,Moved in from another state,183,82,56976
+Millard County,49027,Other flows - Same State,Moved in from Utah counties that sent fewer than 20 households each,184,77,55481
+Millard County,49027,Other flows - Different State,Moved in from counties in other states that sent fewer than 20 households each,183,82,56976
+Millard County,49027,Other flows - Northeast,Moved in from Northeast counties that sent fewer than 20 households each,,,
+Millard County,49027,Other flows - Midwest,Moved in from Midwest counties that sent fewer than 20 households each,,,
+Millard County,49027,Other flows - South,Moved in from South counties that sent fewer than 20 households each,48,20,56300
+Millard County,49027,Other flows - West,Moved in from West counties that sent fewer than 20 households each,135,62,57194
+Millard County,49027,Foreign - Other flows,"Moved in from abroad, in groups too small for IRS to list",,,
+Morgan County,49029,Total Migration-US and Foreign,"Everyone who moved in, from anywhere",782,347,105862
+Morgan County,49029,Total Migration-US,Everyone who moved in from inside the US,782,347,105862
+Morgan County,49029,Total Migration-Same State,Moved in from another Utah county,535,247,105964
+Morgan County,49029,Total Migration-Different State,Moved in from another state,247,100,105600
+Morgan County,49029,Other flows - Same State,Moved in from Utah counties that sent fewer than 20 households each,121,54,89481
+Morgan County,49029,Other flows - Different State,Moved in from counties in other states that sent fewer than 20 households each,247,100,105600
+Morgan County,49029,Other flows - Northeast,Moved in from Northeast counties that sent fewer than 20 households each,,,
+Morgan County,49029,Other flows - Midwest,Moved in from Midwest counties that sent fewer than 20 households each,,,
+Morgan County,49029,Other flows - South,Moved in from South counties that sent fewer than 20 households each,97,35,88114
+Morgan County,49029,Other flows - West,Moved in from West counties that sent fewer than 20 households each,150,65,115015
+Morgan County,49029,Foreign - Other flows,"Moved in from abroad, in groups too small for IRS to list",,,
+Piute County,49031,Total Migration-US and Foreign,"Everyone who moved in, from anywhere",83,28,58536
+Piute County,49031,Total Migration-US,Everyone who moved in from inside the US,83,28,58536
+Piute County,49031,Total Migration-Same State,Moved in from another Utah county,83,28,58536
+Piute County,49031,Other flows - Same State,Moved in from Utah counties that sent fewer than 20 households each,83,28,58536
+Piute County,49031,Other flows - Northeast,Moved in from Northeast counties that sent fewer than 20 households each,,,
+Piute County,49031,Other flows - Midwest,Moved in from Midwest counties that sent fewer than 20 households each,,,
+Piute County,49031,Other flows - South,Moved in from South counties that sent fewer than 20 households each,,,
+Piute County,49031,Other flows - West,Moved in from West counties that sent fewer than 20 households each,,,
+Rich County,49033,Total Migration-US and Foreign,"Everyone who moved in, from anywhere",140,67,85104
+Rich County,49033,Total Migration-US,Everyone who moved in from inside the US,140,67,85104
+Rich County,49033,Total Migration-Same State,Moved in from another Utah county,92,47,90830
+Rich County,49033,Total Migration-Different State,Moved in from another state,48,20,71650
+Rich County,49033,Other flows - Same State,Moved in from Utah counties that sent fewer than 20 households each,92,47,90830
+Rich County,49033,Other flows - Different State,Moved in from counties in other states that sent fewer than 20 households each,48,20,71650
+Rich County,49033,Other flows - Northeast,Moved in from Northeast counties that sent fewer than 20 households each,,,
+Rich County,49033,Other flows - Midwest,Moved in from Midwest counties that sent fewer than 20 households each,,,
+Rich County,49033,Other flows - South,Moved in from South counties that sent fewer than 20 households each,,,
+Rich County,49033,Other flows - West,Moved in from West counties that sent fewer than 20 households each,48,20,71650
+Rich County,49033,Foreign - Other flows,"Moved in from abroad, in groups too small for IRS to list",,,
+Salt Lake County,49035,Total Migration-US and Foreign,"Everyone who moved in, from anywhere",44237,28050,70580
+Salt Lake County,49035,Total Migration-US,Everyone who moved in from inside the US,43862,27858,70369
+Salt Lake County,49035,Total Migration-Same State,Moved in from another Utah county,18611,11363,66903
+Salt Lake County,49035,Total Migration-Different State,Moved in from another state,25251,16495,72758
+Salt Lake County,49035,Total Migration-Foreign,Moved in from outside the US,375,192,101062
+Salt Lake County,49035,Foreign - Overseas,Moved in from overseas,196,116,124052
+Salt Lake County,49035,Foreign - APO/FPO ZIPs,Moved in from US military mail addresses abroad,128,55,79236
+Salt Lake County,49035,Other flows - Same State,Moved in from Utah counties that sent fewer than 20 households each,101,68,50529
+Salt Lake County,49035,Other flows - Different State,Moved in from counties in other states that sent fewer than 20 households each,7603,5062,62740
+Salt Lake County,49035,Other flows - Northeast,Moved in from Northeast counties that sent fewer than 20 households each,1009,751,67667
+Salt Lake County,49035,Other flows - Midwest,Moved in from Midwest counties that sent fewer than 20 households each,1850,1267,62108
+Salt Lake County,49035,Other flows - South,Moved in from South counties that sent fewer than 20 households each,2891,1857,68026
+Salt Lake County,49035,Other flows - West,Moved in from West counties that sent fewer than 20 households each,1853,1187,52026
+Salt Lake County,49035,Foreign - Other flows,"Moved in from abroad, in groups too small for IRS to list",51,21,31238
+San Juan County,49037,Total Migration-US and Foreign,"Everyone who moved in, from anywhere",634,296,53503
+San Juan County,49037,Total Migration-US,Everyone who moved in from inside the US,634,296,53503
+San Juan County,49037,Total Migration-Same State,Moved in from another Utah county,286,127,54898
+San Juan County,49037,Total Migration-Different State,Moved in from another state,348,169,52456
+San Juan County,49037,Other flows - Same State,Moved in from Utah counties that sent fewer than 20 households each,174,72,57444
+San Juan County,49037,Other flows - Different State,Moved in from counties in other states that sent fewer than 20 households each,268,145,54586
+San Juan County,49037,Other flows - Northeast,Moved in from Northeast counties that sent fewer than 20 households each,,,
+San Juan County,49037,Other flows - Midwest,Moved in from Midwest counties that sent fewer than 20 households each,,,
+San Juan County,49037,Other flows - South,Moved in from South counties that sent fewer than 20 households each,54,26,103385
+San Juan County,49037,Other flows - West,Moved in from West counties that sent fewer than 20 households each,214,119,43933
+Sanpete County,49039,Total Migration-US and Foreign,"Everyone who moved in, from anywhere",1451,673,63010
+Sanpete County,49039,Total Migration-US,Everyone who moved in from inside the US,1451,673,63010
+Sanpete County,49039,Total Migration-Same State,Moved in from another Utah county,1151,526,64357
+Sanpete County,49039,Total Migration-Different State,Moved in from another state,300,147,58190
+Sanpete County,49039,Other flows - Same State,Moved in from Utah counties that sent fewer than 20 households each,303,137,48299
+Sanpete County,49039,Other flows - Different State,Moved in from counties in other states that sent fewer than 20 households each,300,147,58190
+Sanpete County,49039,Other flows - Northeast,Moved in from Northeast counties that sent fewer than 20 households each,,,
+Sanpete County,49039,Other flows - Midwest,Moved in from Midwest counties that sent fewer than 20 households each,,,
+Sanpete County,49039,Other flows - South,Moved in from South counties that sent fewer than 20 households each,80,44,50341
+Sanpete County,49039,Other flows - West,Moved in from West counties that sent fewer than 20 households each,220,103,61544
+Sanpete County,49039,Foreign - Other flows,"Moved in from abroad, in groups too small for IRS to list",,,
+Sevier County,49041,Total Migration-US and Foreign,"Everyone who moved in, from anywhere",965,504,52911
+Sevier County,49041,Total Migration-US,Everyone who moved in from inside the US,965,504,52911
+Sevier County,49041,Total Migration-Same State,Moved in from another Utah county,694,364,50016
+Sevier County,49041,Total Migration-Different State,Moved in from another state,271,140,60436
+Sevier County,49041,Other flows - Same State,Moved in from Utah counties that sent fewer than 20 households each,220,111,51820
+Sevier County,49041,Other flows - Different State,Moved in from counties in other states that sent fewer than 20 households each,228,117,57838
+Sevier County,49041,Other flows - Northeast,Moved in from Northeast counties that sent fewer than 20 households each,,,
+Sevier County,49041,Other flows - Midwest,Moved in from Midwest counties that sent fewer than 20 households each,,,
+Sevier County,49041,Other flows - South,Moved in from South counties that sent fewer than 20 households each,52,24,49958
+Sevier County,49041,Other flows - West,Moved in from West counties that sent fewer than 20 households each,176,93,59871
+Summit County,49043,Total Migration-US and Foreign,"Everyone who moved in, from anywhere",3071,1891,267829
+Summit County,49043,Total Migration-US,Everyone who moved in from inside the US,3030,1857,272166
+Summit County,49043,Total Migration-Same State,Moved in from another Utah county,1214,722,134560
+Summit County,49043,Total Migration-Different State,Moved in from another state,1816,1135,359702
+Summit County,49043,Total Migration-Foreign,Moved in from outside the US,41,34,30912
+Summit County,49043,Other flows - Same State,Moved in from Utah counties that sent fewer than 20 households each,146,81,90049
+Summit County,49043,Other flows - Different State,Moved in from counties in other states that sent fewer than 20 households each,1343,866,274853
+Summit County,49043,Other flows - Northeast,Moved in from Northeast counties that sent fewer than 20 households each,252,178,191213
+Summit County,49043,Other flows - Midwest,Moved in from Midwest counties that sent fewer than 20 households each,130,94,219798
+Summit County,49043,Other flows - South,Moved in from South counties that sent fewer than 20 households each,473,274,294248
+Summit County,49043,Other flows - West,Moved in from West counties that sent fewer than 20 households each,488,320,320944
+Summit County,49043,Foreign - Other flows,"Moved in from abroad, in groups too small for IRS to list",41,34,30912
+Tooele County,49045,Total Migration-US and Foreign,"Everyone who moved in, from anywhere",5500,2622,65859
+Tooele County,49045,Total Migration-US,Everyone who moved in from inside the US,5500,2622,65859
+Tooele County,49045,Total Migration-Same State,Moved in from another Utah county,4017,1919,64596
+Tooele County,49045,Total Migration-Different State,Moved in from another state,1483,703,69309
+Tooele County,49045,Other flows - Same State,Moved in from Utah counties that sent fewer than 20 households each,172,86,52674
+Tooele County,49045,Other flows - Different State,Moved in from counties in other states that sent fewer than 20 households each,1309,610,69962
+Tooele County,49045,Other flows - Northeast,Moved in from Northeast counties that sent fewer than 20 households each,36,23,96043
+Tooele County,49045,Other flows - Midwest,Moved in from Midwest counties that sent fewer than 20 households each,112,57,63614
+Tooele County,49045,Other flows - South,Moved in from South counties that sent fewer than 20 households each,352,156,73276
+Tooele County,49045,Other flows - West,Moved in from West counties that sent fewer than 20 households each,809,374,67944
+Tooele County,49045,Foreign - Other flows,"Moved in from abroad, in groups too small for IRS to list",,,
+Uintah County,49047,Total Migration-US and Foreign,"Everyone who moved in, from anywhere",1625,768,53158
+Uintah County,49047,Total Migration-US,Everyone who moved in from inside the US,1625,768,53158
+Uintah County,49047,Total Migration-Same State,Moved in from another Utah county,871,419,50010
+Uintah County,49047,Total Migration-Different State,Moved in from another state,754,349,56937
+Uintah County,49047,Other flows - Same State,Moved in from Utah counties that sent fewer than 20 households each,129,69,40406
+Uintah County,49047,Other flows - Different State,Moved in from counties in other states that sent fewer than 20 households each,754,349,56937
+Uintah County,49047,Other flows - Northeast,Moved in from Northeast counties that sent fewer than 20 households each,,,
+Uintah County,49047,Other flows - Midwest,Moved in from Midwest counties that sent fewer than 20 households each,73,34,52412
+Uintah County,49047,Other flows - South,Moved in from South counties that sent fewer than 20 households each,204,80,64138
+Uintah County,49047,Other flows - West,Moved in from West counties that sent fewer than 20 households each,477,235,55140
+Utah County,49049,Total Migration-US and Foreign,"Everyone who moved in, from anywhere",36148,18943,69014
+Utah County,49049,Total Migration-US,Everyone who moved in from inside the US,35882,18832,69001
+Utah County,49049,Total Migration-Same State,Moved in from another Utah county,17952,9261,68932
+Utah County,49049,Total Migration-Different State,Moved in from another state,17930,9571,69069
+Utah County,49049,Total Migration-Foreign,Moved in from outside the US,266,111,71126
+Utah County,49049,Foreign - Overseas,Moved in from overseas,128,60,76717
+Utah County,49049,Other flows - Same State,Moved in from Utah counties that sent fewer than 20 households each,166,85,67529
+Utah County,49049,Other flows - Different State,Moved in from counties in other states that sent fewer than 20 households each,6829,3681,65272
+Utah County,49049,Other flows - Northeast,Moved in from Northeast counties that sent fewer than 20 households each,751,412,95252
+Utah County,49049,Other flows - Midwest,Moved in from Midwest counties that sent fewer than 20 households each,1439,792,67069
+Utah County,49049,Other flows - South,Moved in from South counties that sent fewer than 20 households each,2618,1337,60783
+Utah County,49049,Other flows - West,Moved in from West counties that sent fewer than 20 households each,2021,1140,58452
+Utah County,49049,Foreign - Other flows,"Moved in from abroad, in groups too small for IRS to list",138,51,64569
+Wasatch County,49051,Total Migration-US and Foreign,"Everyone who moved in, from anywhere",2722,1406,188848
+Wasatch County,49051,Total Migration-US,Everyone who moved in from inside the US,2722,1406,188848
+Wasatch County,49051,Total Migration-Same State,Moved in from another Utah county,1489,773,134982
+Wasatch County,49051,Total Migration-Different State,Moved in from another state,1233,633,254627
+Wasatch County,49051,Other flows - Same State,Moved in from Utah counties that sent fewer than 20 households each,130,68,89132
+Wasatch County,49051,Other flows - Different State,Moved in from counties in other states that sent fewer than 20 households each,1056,547,253589
+Wasatch County,49051,Other flows - Northeast,Moved in from Northeast counties that sent fewer than 20 households each,116,64,229219
+Wasatch County,49051,Other flows - Midwest,Moved in from Midwest counties that sent fewer than 20 households each,139,76,213368
+Wasatch County,49051,Other flows - South,Moved in from South counties that sent fewer than 20 households each,283,154,239877
+Wasatch County,49051,Other flows - West,Moved in from West counties that sent fewer than 20 households each,518,253,280178
+Wasatch County,49051,Foreign - Other flows,"Moved in from abroad, in groups too small for IRS to list",,,
+Washington County,49053,Total Migration-US and Foreign,"Everyone who moved in, from anywhere",12375,6543,82740
+Washington County,49053,Total Migration-US,Everyone who moved in from inside the US,12316,6520,82785
+Washington County,49053,Total Migration-Same State,Moved in from another Utah county,5354,2735,81677
+Washington County,49053,Total Migration-Different State,Moved in from another state,6962,3785,83586
+Washington County,49053,Total Migration-Foreign,Moved in from outside the US,59,23,69870
+Washington County,49053,Other flows - Same State,Moved in from Utah counties that sent fewer than 20 households each,219,123,51089
+Washington County,49053,Other flows - Different State,Moved in from counties in other states that sent fewer than 20 households each,3759,2058,84965
+Washington County,49053,Other flows - Northeast,Moved in from Northeast counties that sent fewer than 20 households each,224,145,93241
+Washington County,49053,Other flows - Midwest,Moved in from Midwest counties that sent fewer than 20 households each,594,336,75613
+Washington County,49053,Other flows - South,Moved in from South counties that sent fewer than 20 households each,1091,542,90797
+Washington County,49053,Other flows - West,Moved in from West counties that sent fewer than 20 households each,1850,1035,83786
+Washington County,49053,Foreign - Other flows,"Moved in from abroad, in groups too small for IRS to list",59,23,69870
+Wayne County,49055,Total Migration-US and Foreign,"Everyone who moved in, from anywhere",74,42,55381
+Wayne County,49055,Total Migration-US,Everyone who moved in from inside the US,74,42,55381
+Wayne County,49055,Total Migration-Same State,Moved in from another Utah county,74,42,55381
+Wayne County,49055,Other flows - Same State,Moved in from Utah counties that sent fewer than 20 households each,74,42,55381
+Wayne County,49055,Other flows - Northeast,Moved in from Northeast counties that sent fewer than 20 households each,,,
+Wayne County,49055,Other flows - Midwest,Moved in from Midwest counties that sent fewer than 20 households each,,,
+Wayne County,49055,Other flows - South,Moved in from South counties that sent fewer than 20 households each,,,
+Wayne County,49055,Other flows - West,Moved in from West counties that sent fewer than 20 households each,,,
+Weber County,49057,Total Migration-US and Foreign,"Everyone who moved in, from anywhere",15057,8366,67115
+Weber County,49057,Total Migration-US,Everyone who moved in from inside the US,14903,8287,67139
+Weber County,49057,Total Migration-Same State,Moved in from another Utah county,9146,4984,65972
+Weber County,49057,Total Migration-Different State,Moved in from another state,5757,3303,68898
+Weber County,49057,Total Migration-Foreign,Moved in from outside the US,154,79,64696
+Weber County,49057,Other flows - Same State,Moved in from Utah counties that sent fewer than 20 households each,148,83,38361
+Weber County,49057,Other flows - Different State,Moved in from counties in other states that sent fewer than 20 households each,3980,2301,68961
+Weber County,49057,Other flows - Northeast,Moved in from Northeast counties that sent fewer than 20 households each,282,191,61660
+Weber County,49057,Other flows - Midwest,Moved in from Midwest counties that sent fewer than 20 households each,668,420,64307
+Weber County,49057,Other flows - South,Moved in from South counties that sent fewer than 20 households each,1388,749,74089
+Weber County,49057,Other flows - West,Moved in from West counties that sent fewer than 20 households each,1642,941,68439
+Weber County,49057,Foreign - Other flows,"Moved in from abroad, in groups too small for IRS to list",154,79,64696

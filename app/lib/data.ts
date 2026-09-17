@@ -20,14 +20,23 @@ export interface Wash {
 export interface County {
   county: string; candidate_parcels: number; median_price_per_acre: number | null;
   median_aadt: number | null; avg_hh_income: number | null;
-  permits_2026: number; population: number;
+  permits_2026: number;
+  /** 2025 Census estimate once the population step has run, ACS before that. */
+  population: number;
   washes: number; express: number;
   pop_per_tunnel: number | null; pop_per_wash: number | null;
+  // Optional so counties.json from before the population step still loads.
+  population_2020?: number | null;
+  /** Percent change, 2020 Census to 2025 estimate. */
+  growth_pct?: number | null;
+  /** People who moved in from elsewhere in the US minus those who left. */
+  net_domestic_2020_2025?: number | null;
 }
 
 export interface Manifest {
   generated: string;
-  sources: { name: string; url: string; licence: string; vintage: string }[];
+  /** licence_url links the licence itself; optional so older manifests still load. */
+  sources: { name: string; url: string; licence: string; licence_url?: string | null; vintage: string }[];
   coverage_caveats: string[];
   counts: Record<string, number | null>;
 }
